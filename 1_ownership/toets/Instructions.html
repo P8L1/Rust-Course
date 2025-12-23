@@ -1,0 +1,672 @@
+<!-- instructions.html
+     Rust Notes Mastery Test (100% = you know 100% of the notes)
+     Tailwind (Play CDN): https://cdn.tailwindcss.com
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rust Notes Mastery Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-slate-950 text-slate-100">
+    <div class="mx-auto max-w-5xl px-4 py-10">
+      <header class="mb-8">
+        <div class="rounded-2xl bg-slate-900/50 p-6 ring-1 ring-slate-800">
+          <h1 class="text-2xl font-bold tracking-tight">Rust Notes Mastery Test</h1>
+          <p class="mt-2 text-slate-300">
+            This test checks whether you studied the notes and know what they teach.
+            It contains <span class="font-semibold">no topics outside the notes</span>.
+          </p>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div class="rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+              <p class="text-sm font-semibold text-slate-200">How to answer</p>
+              <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-300">
+                <li>Some questions require <span class="font-semibold">word answers</span>.</li>
+                <li>Some questions require <span class="font-semibold">code answers</span>.</li>
+                <li>Some questions require <span class="font-semibold">ASCII diagrams</span> (draw the memory layout).</li>
+                <li>When a question says “exact”, match the notes exactly (including spelling like <code class="rounded bg-slate-800 px-1">refrence</code>).</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+              <p class="text-sm font-semibold text-slate-200">Submission</p>
+              <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-300">
+                <li>Create a folder named: <code class="rounded bg-slate-800 px-1">rust_notes_test</code></li>
+                <li>Put your answers in the files named in each section.</li>
+                <li>Do not add extra topics not in the notes.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mt-4 rounded-xl bg-amber-500/10 p-4 ring-1 ring-amber-500/30">
+            <p class="text-sm text-amber-100">
+              <span class="font-semibold">Rule:</span> If a question says “According to the notes”, answer using what the notes say
+              (even if you personally think it’s wrong).
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <!-- Section A -->
+      <section class="mb-8">
+        <div class="rounded-2xl bg-slate-900/50 p-6 ring-1 ring-slate-800">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold">Section A — Exact Recall (Word Answers)</h2>
+              <p class="mt-1 text-sm text-slate-300">
+                Save answers in: <code class="rounded bg-slate-800 px-1">A_recall.md</code>
+              </p>
+            </div>
+            <span class="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-200 ring-1 ring-slate-700">Word answers</span>
+          </div>
+
+          <ol class="mt-6 list-decimal space-y-5 pl-6 text-slate-200">
+            <li>
+              Write the exact meaning (from the notes) of:
+              <code class="rounded bg-slate-800 px-1">#![allow(warnings)]</code>
+              (include the comment meaning).
+            </li>
+
+            <li>
+              Write the <span class="font-semibold">three</span> Ownership rules exactly as shown in the notes (line by line).
+            </li>
+
+            <li>
+              Write the <span class="font-semibold">two</span> Borrowing rules exactly as shown in the notes (line by line).
+            </li>
+
+            <li>
+              In the notes, under “Ownership rule 1”, what does the note say about:
+              <span class="font-semibold">where</span> <code class="rounded bg-slate-800 px-1">s</code> is valid and
+              <span class="font-semibold">why</span> it becomes invalid?
+            </li>
+
+            <li>
+              According to the notes, for:
+              <code class="rounded bg-slate-800 px-1">let x = 5; let y = x;</code>
+              what is the key word written beside <code class="rounded bg-slate-800 px-1">let y = x;</code>?
+            </li>
+
+            <li>
+              According to the notes, what does
+              <code class="rounded bg-slate-800 px-1">clone()</code>
+              do in:
+              <code class="rounded bg-slate-800 px-1">let string_two = string_one.clone();</code>
+            </li>
+
+            <li>
+              In the notes, what is the name of the concept described by:
+              “Passing in refrences as function parameters is called ________ because we are borrowing the value but we are not actually taking ownership.”
+              (Fill the blank with the exact word.)
+            </li>
+
+            <li>
+              According to the notes, what is the default mutability of refrences?
+            </li>
+
+            <li>
+              According to the notes, what is the big restriction about mutable refrences (write it exactly as stated)?
+            </li>
+
+            <li>
+              According to the notes, explain the “IMPORTANT” rule about refrence scope (one sentence, as written).
+            </li>
+
+            <li>
+              In “Problem 1” for slices, what return type is used in the first implementation of <code class="rounded bg-slate-800 px-1">first_word</code>?
+            </li>
+
+            <li>
+              The notes say there are two problems with the first implementation.
+              List problem #1 and problem #2 (in your own words is okay, but it must match the notes’ meaning).
+            </li>
+
+            <li>
+              For string slicing, the notes give three slice patterns:
+              <code class="rounded bg-slate-800 px-1">[..5]</code>,
+              <code class="rounded bg-slate-800 px-1">[6..]</code>,
+              <code class="rounded bg-slate-800 px-1">[..]</code>.
+              For each one, write what the notes say it means (three lines).
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Section B -->
+      <section class="mb-8">
+        <div class="rounded-2xl bg-slate-900/50 p-6 ring-1 ring-slate-800">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold">Section B — Fill-in-the-Code (Code Answers)</h2>
+              <p class="mt-1 text-sm text-slate-300">
+                Save answers in: <code class="rounded bg-slate-800 px-1">B_fill_in.rs</code>
+              </p>
+            </div>
+            <span class="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-200 ring-1 ring-slate-700">Code answers</span>
+          </div>
+
+          <p class="mt-4 text-sm text-slate-300">
+            Instructions: Copy the following code into <code class="rounded bg-slate-800 px-1">B_fill_in.rs</code>.
+            Replace every <span class="font-semibold">__BLANK__</span> with the exact code shown in the notes.
+            Do not change anything else.
+          </p>
+
+          <div class="mt-4 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+            <pre class="overflow-x-auto text-sm leading-6 text-slate-100"><code>#![allow(warnings)] //^ __BLANK__
+
+
+fn main() {
+
+    //^ ----- Ownership rules -----
+    //~ 1. __BLANK__
+    //~ 2. __BLANK__
+    //~ 3. __BLANK__
+    //^ ----- Borrowing rules -----
+    //~ 1. __BLANK__
+    //~ 2. __BLANK__
+
+
+    //^ ----- Ownership rule 2 -----
+    let x = 5;
+    let y = x; //. __BLANK__
+
+
+    let string_one = String::from("Rusty"); //. Refer to (#####)
+    let string_two  = __BLANK__; //. Moves string_one into string two Refer to ($$$)
+    println!("String one: {string_one}");  //. __BLANK__
+
+
+    let string_one = String::from("Rusty"); //. Refer to (#####)
+    let string_two  = string_one.__BLANK__(); //. Clones string_one into string two Refer to (XYZ)
+    println!("String one: {string_one}"); //. Works fine
+
+
+    let s_one = String::from("hello");
+    let refrence_to_s_one = __BLANK__; //^ Creates a refrence to s_one and stores it in the variable refrence_to_s_one
+    let first_letter = get_first_letter_fix(refrence_to_s_one); //^ Call the function get_first_letter_fix with a REFRENCE to s_one.
+    println!("The value of s is {}", s_one);
+    println!("The first letter of s is {}", first_letter);
+
+
+    let mut s_one = String::from("foo"); //. The variable being refrenced needs to be mutable
+    let mut refrence_to_s_one = __BLANK__; //. Make a mutable refrence
+    change_s_one(refrence_to_s_one);
+    println!("The value of s_one is {}", s_one); //. Will print "foobar"
+}
+
+fn takes_ownership(s: __BLANK__) {
+    println!("The value of the string is {}", s);
+}
+
+fn copies_ownership(x: __BLANK__) {
+    println!("The value of the x is {}", x);
+}
+
+fn get_first_letter_example(s: __BLANK__) -> char {
+    return s.chars().nth(0).__BLANK__("String has no chars");
+}
+
+fn get_first_letter_fix(s: __BLANK__) -> char { //. __BLANK__
+    return s.chars().nth(0).__BLANK__("String has no chars");
+}
+
+fn change_s_one(some_string: __BLANK__) { //. __BLANK__
+    return some_string.push_str("bar");
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section C -->
+      <section class="mb-8">
+        <div class="rounded-2xl bg-slate-900/50 p-6 ring-1 ring-slate-800">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold">Section C — “According to the notes…” (Short Word Answers)</h2>
+              <p class="mt-1 text-sm text-slate-300">
+                Save answers in: <code class="rounded bg-slate-800 px-1">C_according_to_notes.md</code>
+              </p>
+            </div>
+            <span class="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-200 ring-1 ring-slate-700">Word answers</span>
+          </div>
+
+          <ol class="mt-6 list-decimal space-y-5 pl-6 text-slate-200">
+            <li>
+              According to the notes: After calling <code class="rounded bg-slate-800 px-1">takes_ownership(s)</code>,
+              why does <code class="rounded bg-slate-800 px-1">println!("{}", s)</code> not work?
+            </li>
+
+            <li>
+              According to the notes: After calling <code class="rounded bg-slate-800 px-1">copies_ownership(x)</code>,
+              why does <code class="rounded bg-slate-800 px-1">println!("{}", x)</code> still work?
+            </li>
+
+            <li>
+              According to the notes: In “Example 3” (borrow rules),
+              why can’t you create <code class="rounded bg-slate-800 px-1">&amp;mut s</code>
+              if <code class="rounded bg-slate-800 px-1">&amp;s</code> already exists?
+            </li>
+
+            <li>
+              According to the notes: In “Example 4”, why is <code class="rounded bg-slate-800 px-1">let r5 = &amp;mut s;</code>
+              valid after the <code class="rounded bg-slate-800 px-1">println!</code> that uses <code class="rounded bg-slate-800 px-1">r1</code>?
+            </li>
+
+            <li>
+              According to the notes: What future topic does it mention as a fix for the dangling reference example?
+              (Just name the topic exactly.)
+            </li>
+
+            <li>
+              According to the notes: In the first <code class="rounded bg-slate-800 px-1">first_word</code> implementation,
+              what does it return if it finds no spaces?
+            </li>
+
+            <li>
+              According to the notes: In the first <code class="rounded bg-slate-800 px-1">first_word</code> implementation,
+              what does it compare against to detect a space? (Write the exact literal.)
+            </li>
+
+            <li>
+              According to the notes: In the slice-based <code class="rounded bg-slate-800 px-1">first_word</code> implementation,
+              what is the return type?
+            </li>
+
+            <li>
+              According to the notes: What does <code class="rounded bg-slate-800 px-1">s.clear()</code> do to the string?
+              (Use the notes’ wording/idea.)
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Section D (Refactored: concept test from code) -->
+      <section class="mb-8">
+        <div class="rounded-2xl bg-slate-900/50 p-6 ring-1 ring-slate-800">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold">Section D — Memory &amp; Ownership Diagrams (From Code)</h2>
+              <p class="mt-1 text-sm text-slate-300">
+                Save answers in: <code class="rounded bg-slate-800 px-1">D_diagrams.md</code>
+              </p>
+            </div>
+            <span class="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-200 ring-1 ring-slate-700">ASCII diagrams</span>
+          </div>
+
+          <div class="mt-4 rounded-xl bg-emerald-500/10 p-4 ring-1 ring-emerald-500/30">
+            <p class="text-sm text-emerald-100">
+              Instructions: For each prompt below, draw the memory layout as an ASCII diagram in the same
+              style the notes use (Stack / Heap, with ptr/len/capacity when applicable, and heap indexes 0..4 for "Rusty").
+              Use the exact variable names from the code.
+            </p>
+          </div>
+
+          <ol class="mt-6 list-decimal space-y-7 pl-6 text-slate-200">
+            <li>
+              <p class="font-semibold">Copy (heap not used)</p>
+              <p class="mt-1 text-sm text-slate-300">Draw the memory layout after these lines run.</p>
+              <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+                <pre class="overflow-x-auto text-sm leading-6"><code>let x = 5;
+let y = x; //. Copy</code></pre>
+              </div>
+            </li>
+
+            <li>
+              <p class="font-semibold">Move (String ownership transfer)</p>
+              <p class="mt-1 text-sm text-slate-300">
+                Draw the memory layout after the move happens (after the second line).
+                Your diagram must include Stack + Heap, and show what exists and what does not (as the notes explain).
+              </p>
+              <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+                <pre class="overflow-x-auto text-sm leading-6"><code>let string_one = String::from("Rusty");
+let string_two = string_one;</code></pre>
+              </div>
+            </li>
+
+            <li>
+              <p class="font-semibold">Clone (two independent heap allocations)</p>
+              <p class="mt-1 text-sm text-slate-300">
+                Draw the memory layout after cloning (after the second line).
+                Your diagram must show two stack entries and both heaps containing the same characters.
+              </p>
+              <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+                <pre class="overflow-x-auto text-sm leading-6"><code>let string_one = String::from("Rusty");
+let string_two = string_one.clone();</code></pre>
+              </div>
+            </li>
+
+            <li>
+              <p class="font-semibold">Reference (borrowing, no ownership transfer)</p>
+              <p class="mt-1 text-sm text-slate-300">
+                Draw what the notes say a reference looks like in memory:
+                a stack entry that points to another stack entry that points to the heap.
+              </p>
+              <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+                <pre class="overflow-x-auto text-sm leading-6"><code>let s_one = String::from("Rusty");
+let refrence_to_s_one = &s_one;</code></pre>
+              </div>
+            </li>
+
+            <li>
+              <p class="font-semibold">Mutable reference (and the requirement for mut)</p>
+              <p class="mt-1 text-sm text-slate-300">
+                Draw the memory layout after the mutable reference is created (after the second line).
+                Use the exact variable names.
+              </p>
+              <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+                <pre class="overflow-x-auto text-sm leading-6"><code>let mut s_one = String::from("foo");
+let mut refrence_to_s_one = &mut s_one;</code></pre>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- REPLACEMENT SECTION E (expanded; still only uses rules/examples implied by the notes) -->
+<section class="mb-8">
+  <div class="rounded-2xl bg-slate-900/50 p-6 ring-1 ring-slate-800">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold">Section E — Borrowing Rules: Identify the Broken Line (From Notes)</h2>
+        <p class="mt-1 text-sm text-slate-300">
+          Save answers in: <code class="rounded bg-slate-800 px-1">E_borrowing.md</code>
+        </p>
+      </div>
+      <span class="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-200 ring-1 ring-slate-700">Short answers</span>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+      <p class="text-sm text-slate-200 font-semibold">Instructions</p>
+      <ol class="mt-2 list-decimal pl-5 space-y-1 text-sm text-slate-300">
+        <li>For each snippet: write the exact line that “can’t happen / won’t work” according to the notes.</li>
+        <li>Then write the reason using the notes’ explanation (1–3 sentences).</li>
+        <li>If the snippet is valid, write: <span class="font-semibold">“No broken line”</span> and explain why (using notes’ rules).</li>
+        <li>Use the notes’ spelling/wording style (e.g. “refrence”, “wont work”, “cant happen”).</li>
+      </ol>
+    </div>
+
+    <div class="mt-6 rounded-xl bg-amber-500/10 p-4 ring-1 ring-amber-500/30">
+      <p class="text-sm text-amber-100">
+        <span class="font-semibold">Reminder:</span> Don’t invent new rules. Only use what the notes say or what the notes directly imply
+        (Borrowing Rule 1, “refrences must always be valid”, “immutable by default”, “scope starts when introduced and ends on last use”, etc.).
+      </p>
+    </div>
+
+    <ol class="mt-6 list-decimal space-y-7 pl-6 text-slate-200">
+      <!-- 1 -->
+      <li>
+        <p class="font-semibold">Two mutable refrences (same scope)</p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let mut s = String::from("Hello");
+    let r1 = &mut s; //. r1 is a mutable refrence to s
+    let r2 = &mut s; //. This cant happen since we already have a mutable refrence to s ...
+    println!("The value of r1 is {}, the value of r2 is {}", r1, r2)
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 2 -->
+      <li>
+        <p class="font-semibold">Any number of immutable refrences (valid)</p>
+        <p class="mt-1 text-sm text-slate-300">If valid, say “No broken line” and justify using the notes.</p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let s = String::from("Hello");
+    let r1 = &s; //. r1 is a refrence to s
+    let r2 = &s; //. r2 is a refrence to s
+    println!("The value of r1 is {}, the value of r2 is {}", r1, r2)
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 3 -->
+      <li>
+        <p class="font-semibold">Mutable refrence while immutable exists (same scope)</p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let mut s = String::from("Hello");
+    let r1 = &s; //. r1 is a refrence to s
+    let r2 = &mut s; //. This wont work since we already have an immutable refrence ...
+    println!("The value of r1 is {}, the value of r2 is {}", r1, r2)
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 4 -->
+      <li>
+        <p class="font-semibold">Scope ends on last use (mixing immutable then mutable)</p>
+        <p class="mt-1 text-sm text-slate-300">
+          Use the notes’ IMPORTANT rule about when a refrence’s scope ends.
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let mut s = String::from("Hello");
+    let r1 = &s; //. r1 scope starts
+    println!("The value of r1 is {}", r1); //. r1 last use (scope ends here)
+    let r5 = &mut s; //. Should be valid based on notes
+    r5.push_str(", there!");
+    println!("{}", s)
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 5 -->
+      <li>
+        <p class="font-semibold">Mutable refrence requires the variable to be mutable</p>
+        <p class="mt-1 text-sm text-slate-300">
+          The notes explicitly mention: “The variable being refrenced needs to be mutable”.
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let s_one = String::from("foo"); //. NOT mutable
+    let refrence_to_s_one = &mut s_one; //. Make a mutable refrence
+    change_s_one(refrence_to_s_one);
+    println!("The value of s_one is {}", s_one);
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 6 -->
+      <li>
+        <p class="font-semibold">Immutable by default (calling a function that needs &mut)</p>
+        <p class="mt-1 text-sm text-slate-300">
+          The notes show <code class="rounded bg-slate-800 px-1">change_s_one</code> takes <code class="rounded bg-slate-800 px-1">&amp;mut String</code>.
+          Identify the line that won’t work and why (based on notes).
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let mut s_one = String::from("foo");
+    let refrence_to_s_one = &s_one; //. Refrences are immutable by default
+    change_s_one(refrence_to_s_one);
+    println!("The value of s_one is {}", s_one);
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 7 -->
+      <li>
+        <p class="font-semibold">Only one mutable refrence at a time (even if you don’t use one yet)</p>
+        <p class="mt-1 text-sm text-slate-300">
+          The notes say: “You can only have one mutable refrence to a piece of data in one scope.”
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let mut s = String::from("Hello");
+    let r1 = &mut s;
+    let r2 = &mut s;
+    println!("The value of r1 is {}", r1);
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 8 -->
+      <li>
+        <p class="font-semibold">Two mutable refrences, but in different scopes (valid)</p>
+        <p class="mt-1 text-sm text-slate-300">
+          If valid, say “No broken line” and justify using the notes’ idea of scope.
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let mut s = String::from("Hello");
+
+    {
+        let r1 = &mut s;
+        println!("r1: {}", r1);
+    }
+
+    {
+        let r2 = &mut s;
+        println!("r2: {}", r2);
+    }
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 9 -->
+      <li>
+        <p class="font-semibold">Immutable refrence still “exists” until last use</p>
+        <p class="mt-1 text-sm text-slate-300">
+          This tests the notes’ “scope ends when used for the last time” rule.
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let mut s = String::from("Hello");
+    let r1 = &s;
+    let r2 = &s;
+    let r3 = &mut s;
+    println!("r1: {}, r2: {}", r1, r2);
+    println!("s: {}", s);
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 10 -->
+      <li>
+        <p class="font-semibold">Dangling reference (refrences must always be valid)</p>
+        <p class="mt-1 text-sm text-slate-300">
+          Write what becomes invalid and why, following the notes’ explanation.
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    fn main() {
+        let refrence_to_nothing = dangle(); //. The result of dangle() is a refrence to a piece of data that does not exist
+    }
+    fn dangle() -> &String  {
+        let s = String::from("Hello");
+        return &s;
+    } //. s goes out of scope here and is thus dropped ...
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 11 -->
+      <li>
+        <p class="font-semibold">Borrowing keeps ownership in the current scope (valid)</p>
+        <p class="mt-1 text-sm text-slate-300">
+          This is directly from the notes’ “FIX using a REFRENCE” idea.
+          If valid, say “No broken line” and justify why <code class="rounded bg-slate-800 px-1">s_one</code> stays valid.
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let s_one = String::from("hello");
+    let refrence_to_s_one = &s_one;
+    let first_letter = get_first_letter_fix(refrence_to_s_one);
+    println!("The value of s is {}", s_one);
+    println!("The first letter of s is {}", first_letter);
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 12 -->
+      <li>
+        <p class="font-semibold">Slices don’t take ownership (valid, “tied to the string” idea)</p>
+        <p class="mt-1 text-sm text-slate-300">
+          If valid, say “No broken line” and justify using the notes’ statement that slices don’t take ownership.
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    let some_string = "Hello world";
+    let word = first_word(some_string);
+    println!("The value of word is: {}", word);
+}</code></pre>
+        </div>
+      </li>
+
+      <!-- 13 -->
+      <li>
+        <p class="font-semibold">Slices: return the whole string slice when no spaces</p>
+        <p class="mt-1 text-sm text-slate-300">
+          Identify which return line matches the notes when no spaces are found.
+          (If you think it’s valid, say “No broken line”.)
+        </p>
+        <div class="mt-3 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+          <pre class="overflow-x-auto text-sm leading-6"><code>{
+    fn first_word(some_string_input: &str) -> &str {
+        let some_string_as_bytes = some_string_input.as_bytes();
+        for (i, &item) in some_string_as_bytes.iter().enumerate() {
+            if item == b' ' {
+                return &some_string_input[0..i];
+            }
+        }
+        return &some_string_input[..];
+    }
+}</code></pre>
+        </div>
+      </li>
+    </ol>
+
+    <div class="mt-8 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+      <p class="text-sm font-semibold text-slate-200">Answer format (required)</p>
+      <div class="mt-2 text-sm text-slate-300 space-y-2">
+        <p>For each question, write:</p>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><span class="font-semibold">Broken line:</span> (paste the full line) OR <span class="font-semibold">No broken line</span></li>
+          <li><span class="font-semibold">Reason:</span> 1–3 sentences using the notes’ rules/explanations</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+      <!-- Final checklist -->
+      <section>
+        <div class="rounded-2xl bg-slate-900/50 p-6 ring-1 ring-slate-800">
+          <h2 class="text-xl font-bold">Final Checklist</h2>
+          <ul class="mt-4 list-disc space-y-2 pl-6 text-sm text-slate-300">
+            <li>You created <code class="rounded bg-slate-800 px-1">rust_notes_test/</code></li>
+            <li>
+              You included:
+              <code class="rounded bg-slate-800 px-1">A_recall.md</code>,
+              <code class="rounded bg-slate-800 px-1">B_fill_in.rs</code>,
+              <code class="rounded bg-slate-800 px-1">C_according_to_notes.md</code>,
+              <code class="rounded bg-slate-800 px-1">D_diagrams.md</code>,
+              <code class="rounded bg-slate-800 px-1">E_borrowing.md</code>
+            </li>
+            <li>When asked for “exact”, you matched the notes (including spelling and variable names).</li>
+            <li>You did not add topics not present in the notes.</li>
+          </ul>
+
+          <details class="mt-6 rounded-xl bg-slate-950/40 p-4 ring-1 ring-slate-800">
+            <summary class="cursor-pointer select-none text-sm font-semibold text-slate-200">
+              Optional: Quick Self-Check (not graded)
+            </summary>
+            <div class="mt-3 space-y-2 text-sm text-slate-300">
+              <p>If you can do Section D diagrams correctly without opening the notes, you studied properly.</p>
+              <p>If your Section E reasons match the notes’ wording/idea, you didn’t just memorize code — you learned what it means.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <footer class="mt-10 text-center text-xs text-slate-500">
+        Built for “study-the-notes” accuracy — everything is based on the notes you were given.
+      </footer>
+    </div>
+  </body>
+</html>
