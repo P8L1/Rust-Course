@@ -1,6 +1,17 @@
-[package]
-name = "rust_module_system"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
+[workspace]
+members = [
+  "lesson_01_why_modules",
+  "lesson_02_packages_crates_modules",
+  "lesson_03_creating_packages_and_crates",
+  "lesson_04_defining_modules_tree",
+  "lesson_05_paths_absolute_relative",
+  "lesson_06_privacy_rules",
+  "lesson_07_pub_keyword",
+  "lesson_08_super_keyword",
+  "lesson_09_struct_privacy_fields",
+  "lesson_10_enum_privacy",
+  "lesson_11_use_and_pub_use",
+  "lesson_12_nested_paths_and_glob",
+  "lesson_13_modules_across_files",
+]
+resolver = "2"
