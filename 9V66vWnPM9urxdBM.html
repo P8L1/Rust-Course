@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rust Weekly Calendar (Ownership → Web Server) + Git</title>
+  <meta name="description" content="A weekly study calendar for a Rust learning plan (starting at Ownership) plus a Git week." />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <!-- Ambient background -->
+  <div class="pointer-events-none fixed inset-0 overflow-hidden">
+    <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-indigo-600/25 blur-3xl"></div>
+    <div class="absolute top-40 -right-32 h-80 w-80 rounded-full bg-cyan-500/20 blur-3xl"></div>
+    <div class="absolute -bottom-28 left-1/3 h-80 w-80 rounded-full bg-fuchsia-500/15 blur-3xl"></div>
+  </div>
+
+  <main class="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <header class="mb-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Weekly Rust Calendar
+            <span class="text-slate-300">+ Git</span>
+          </h1>
+          <p class="mt-2 text-sm text-slate-300">
+            One chapter per week. Start: <span class="font-medium text-slate-200">23 Dec 2025</span>.
+            Switch every <span class="font-medium text-slate-200">7 days</span> (so the next chapter starts on
+            <span class="font-medium text-slate-200">30 Dec 2025</span>, then 7 days later again, etc.).
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="todayBadge" class="inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-900/50 px-3 py-1 text-xs text-slate-200 shadow-sm">
+            <span class="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+            <span id="todayText">Today</span>
+          </span>
+
+          <button id="jumpToThisWeekBtn" type="button"
+            class="inline-flex items-center rounded-full bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow-sm ring-1 ring-indigo-300/20 transition hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/60">
+            Jump to this week
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-6 rounded-2xl border border-slate-800/70 bg-slate-900/40 p-5 shadow-sm">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Motivation</p>
+            <p id="quoteText" class="mt-2 text-lg leading-relaxed text-slate-100"></p>
+            <p id="quoteAuthor" class="mt-2 text-sm text-slate-300"></p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 sm:w-[420px]">
+            <div class="rounded-xl border border-slate-800/70 bg-slate-950/30 p-4">
+              <p class="text-xs text-slate-400">This week</p>
+              <p id="thisWeekLabel" class="mt-1 text-base font-semibold text-slate-100">—</p>
+              <p id="thisWeekRange" class="mt-1 text-xs text-slate-300">—</p>
+              <p id="thisWeekSwitch" class="mt-1 text-xs text-slate-400">—</p>
+            </div>
+            <div class="rounded-xl border border-slate-800/70 bg-slate-950/30 p-4">
+              <p class="text-xs text-slate-400">Weeks remaining</p>
+              <p id="weeksRemaining" class="mt-1 text-base font-semibold text-slate-100">—</p>
+              <p id="finishDate" class="mt-1 text-xs text-slate-300">—</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5">
+          <div class="flex items-center justify-between text-xs text-slate-300">
+            <span id="progressText">Progress</span>
+            <span id="progressPct">0%</span>
+          </div>
+          <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800/60">
+            <div id="progressBar" class="h-full w-0 rounded-full bg-emerald-400/90 transition-all"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section aria-label="Calendar">
+      <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Weekly plan</h2>
+        <p class="text-sm text-slate-300">
+          Highlight follows <span class="font-medium text-slate-200">Africa/Johannesburg</span>.
+        </p>
+      </div>
+
+      <div id="calendarRoot" class="space-y-10"></div>
+
+      <footer class="mt-12 space-y-4 border-t border-slate-800/70 pt-6 text-xs text-slate-400">
+        <div class="max-w-3xl rounded-2xl border border-slate-800/70 bg-slate-900/35 p-5">
+          <p class="text-sm text-slate-100">
+            “You won’t feel the skill building—until one day you realize you can build things.”
+          </p>
+          <p class="mt-2 text-xs text-slate-300">— PL Schoeman</p>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    // ---------------------------------------------------------------------
+    // Configuration
+    // ---------------------------------------------------------------------
+    const CONFIG = Object.freeze({
+      tzName: "Africa/Johannesburg",
+      // Schedule start (local date in Africa/Johannesburg): 2025-12-23
+      startDate: Object.freeze({ y: 2025, m: 12, d: 23 }), // month is 1-12
+      firstRustChapter: 4,
+      lastRustChapter: 44
+    });
+
+    // Titles provided by you, aligned with Rust Book chapters 4 → 44 (41 weeks),
+    // with a final "Git" week appended.
+    const TITLES = Object.freeze([
+      "Understanding Ownership in Rust",
+      "Structs in Rust",
+      "Enums and Pattern Matching in Rust",
+      "Rust's Module System Explained!",
+      "Common Collections in Rust",
+      "Error Handling in Rust",
+      "Generic Types in Rust",
+      "Traits in Rust",
+      "Rust Lifetimes Finally Explained!",
+      "Testing in Rust",
+      "Testing in Rust - Part 2",
+      "Writing a CLI App in Rust! - Part 1",
+      "Writing a CLI App in Rust! - Part 2",
+      "Closures in Rust",
+      "Iterators in Rust",
+      "Iterators in Practice",
+      "Publishing a Rust Crate!",
+      "Cargo Workspaces",
+      "The Box Smart Pointer in Rust",
+      "Smart Pointers in Rust - The Deref Trait",
+      "Smart Pointers in Rust - The Drop Trait",
+      "Smart Pointers in Rust - Reference Counting",
+      "Smart Pointers in Rust - Interior Mutability",
+      "Smart Pointers in Rust - Reference Cycles",
+      "Concurrency in Rust - Creating Threads",
+      "Concurrency in Rust - Message Passing",
+      "Concurrency in Rust - Sharing State",
+      "Object Oriented Programming in Rust",
+      "Using Trait Objects in Rust",
+      "State Design Pattern in Rust",
+      "Patterns and Matching",
+      "Pattern Syntax in Rust",
+      "Writing Unsafe Rust",
+      "Advanced Traits in Rust",
+      "Advanced Types in Rust",
+      "Advanced Function and Closures in Rust",
+      "Declarative Macros in Rust",
+      "Procedural Macros in Rust",
+      "Building a Web Server in Rust - Part 1",
+      "Building a Web Server in Rust - Part 2",
+      "Building a Web Server in Rust - Part 3",
+      "Git"
+    ]);
+
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    // ---------------------------------------------------------------------
+    // Safe helpers (date math anchored on UTC-midnight epoch days)
+    //
+    // Key idea: we treat schedule dates as *local dates* in Africa/Johannesburg,
+    // but represent them as UTC-midnight "epoch days" to avoid timezone drift.
+    //
+    // Then we display them using Intl.DateTimeFormat with timeZone set to
+    // Africa/Johannesburg, so you see the exact local dates you expect.
+    // ---------------------------------------------------------------------
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message || "Assertion failed");
+      }
+    }
+
+    function pad2(n) {
+      const s = String(n);
+      return s.length === 1 ? "0" + s : s;
+    }
+
+    function epochDayFromYMD(ymd) {
+      assert(ymd && Number.isInteger(ymd.y) && Number.isInteger(ymd.m) && Number.isInteger(ymd.d), "Invalid ymd");
+      assert(ymd.m >= 1 && ymd.m <= 12, "Month out of range");
+      assert(ymd.d >= 1 && ymd.d <= 31, "Day out of range");
+      const utcMs = Date.UTC(ymd.y, ymd.m - 1, ymd.d);
+      const epochDay = Math.floor(utcMs / MS_PER_DAY);
+      assert(Number.isFinite(epochDay), "epochDay not finite");
+      return epochDay;
+    }
+
+    function ymdTodayInTz(tzName) {
+      assert(typeof tzName === "string" && tzName.length > 0, "Invalid tzName");
+      const fmt = new Intl.DateTimeFormat("en-CA", {
+        timeZone: tzName,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+
+      const parts = fmt.formatToParts(new Date());
+      let y = null;
+      let m = null;
+      let d = null;
+
+      for (let i = 0; i < parts.length; i += 1) {
+        const p = parts[i];
+        if (p.type === "year") y = Number(p.value);
+        if (p.type === "month") m = Number(p.value);
+        if (p.type === "day") d = Number(p.value);
+      }
+
+      assert(Number.isInteger(y) && Number.isInteger(m) && Number.isInteger(d), "Failed to get today YMD in tz");
+      return Object.freeze({ y, m, d });
+    }
+
+    function epochDayTodayInTz(tzName) {
+      const ymd = ymdTodayInTz(tzName);
+      return epochDayFromYMD(ymd);
+    }
+
+    function dateFromEpochDay(epochDay) {
+      assert(Number.isInteger(epochDay), "epochDay must be integer");
+      const utcMs = epochDay * MS_PER_DAY;
+      const d = new Date(utcMs);
+      assert(!Number.isNaN(d.getTime()), "Invalid date");
+      return d;
+    }
+
+    function formatEpochDay(epochDay) {
+      const d = dateFromEpochDay(epochDay);
+      const fmt = new Intl.DateTimeFormat("en-ZA", {
+        timeZone: CONFIG.tzName,
+        year: "numeric",
+        month: "short",
+        day: "2-digit"
+      });
+      return fmt.format(d);
+    }
+
+    function formatRangeStartToSwitch(startEpochDay, switchEpochDay) {
+      assert(Number.isInteger(startEpochDay) && Number.isInteger(switchEpochDay), "Invalid epochDay range");
+      assert(switchEpochDay > startEpochDay, "switchEpochDay must be > startEpochDay");
+      return formatEpochDay(startEpochDay) + " \u2192 " + formatEpochDay(switchEpochDay);
+    }
+
+    function monthKeyFromEpochDay(epochDay) {
+      const d = dateFromEpochDay(epochDay);
+      const keyFmt = new Intl.DateTimeFormat("en-CA", {
+        timeZone: CONFIG.tzName,
+        year: "numeric",
+        month: "2-digit"
+      });
+
+      const parts = keyFmt.formatToParts(d);
+      let y = null;
+      let m = null;
+
+      for (let i = 0; i < parts.length; i += 1) {
+        const p = parts[i];
+        if (p.type === "year") y = p.value;
+        if (p.type === "month") m = p.value;
+      }
+
+      assert(typeof y === "string" && typeof m === "string", "Failed to build month key");
+      return y + "-" + m;
+    }
+
+    function monthLabelFromMonthKey(key) {
+      assert(typeof key === "string" && key.includes("-"), "Invalid month key");
+      const parts = key.split("-");
+      assert(parts.length === 2, "Invalid month key parts");
+      const y = Number(parts[0]);
+      const m = Number(parts[1]);
+      assert(Number.isInteger(y) && Number.isInteger(m), "Invalid month key values");
+      const d = new Date(Date.UTC(y, m - 1, 1));
+      const fmt = new Intl.DateTimeFormat("en-ZA", {
+        timeZone: CONFIG.tzName,
+        year: "numeric",
+        month: "long"
+      });
+      return fmt.format(d);
+    }
+
+    // ---------------------------------------------------------------------
+    // Quotes (bigger pool)
+    // ---------------------------------------------------------------------
+    const QUOTES = Object.freeze([
+      Object.freeze({ t: "Simplicity is prerequisite for reliability.", a: "Edsger W. Dijkstra" }),
+      Object.freeze({ t: "Programs must be written for people to read, and only incidentally for machines to execute.", a: "Abelson & Sussman" }),
+      Object.freeze({ t: "Premature optimization is the root of all evil.", a: "Donald Knuth" }),
+      Object.freeze({ t: "The only way to learn a new programming language is by writing programs in it.", a: "Dennis Ritchie" }),
+      Object.freeze({ t: "Talk is cheap. Show me the code.", a: "Linus Torvalds" }),
+      Object.freeze({ t: "Make it work, make it right, make it fast.", a: "Kent Beck" }),
+      Object.freeze({ t: "First, solve the problem. Then, write the code.", a: "John Johnson" }),
+      Object.freeze({ t: "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.", a: "Martin Fowler" }),
+      Object.freeze({ t: "Code is like humor. When you have to explain it, it’s bad.", a: "Cory House" }),
+      Object.freeze({ t: "Small steps, sharp feedback, repeat.", a: "Engineering habit" }),
+      Object.freeze({ t: "Correctness first. Performance second. But both matter.", a: "Systems programming mindset" }),
+      Object.freeze({ t: "Ship small. Learn fast.", a: "Product engineering mantra" }),
+      Object.freeze({ t: "The best API is the one that’s hard to misuse.", a: "API design principle" }),
+      Object.freeze({ t: "Complexity is the enemy. Delete what you can.", a: "Engineering principle" }),
+      Object.freeze({ t: "Debugging is twice as hard as writing the code in the first place.", a: "Brian Kernighan" }),
+      Object.freeze({ t: "Name things well. Future you is reading.", a: "Refactoring mantra" }),
+      Object.freeze({ t: "Make states unrepresentable. Make success easy.", a: "Rust-y design vibe" }),
+      Object.freeze({ t: "If it hurts, do it more often.", a: "Refactoring principle (commonly cited)" }),
+      Object.freeze({ t: "Consistency beats intensity when you’re learning.", a: "Learning principle" })
+    ]);
+
+    // ---------------------------------------------------------------------
+    // Schedule (weeks are start → switch day)
+    // ---------------------------------------------------------------------
+    function buildSchedule() {
+      const items = [];
+      const startEpochDay = epochDayFromYMD(CONFIG.startDate);
+
+      const rustCount = (CONFIG.lastRustChapter - CONFIG.firstRustChapter + 1);
+      assert(rustCount === 41, "Expected Rust chapters 4..44 to be 41 weeks");
+
+      assert(Array.isArray(TITLES), "TITLES must be an array");
+      assert(TITLES.length >= rustCount, "Not enough titles for Rust weeks");
+
+      const lastTitle = TITLES[TITLES.length - 1];
+      const hasGitAtEnd = (typeof lastTitle === "string" && lastTitle.trim().toLowerCase() === "git");
+      const rustTitles = hasGitAtEnd ? TITLES.slice(0, TITLES.length - 1) : TITLES.slice(0);
+      assert(rustTitles.length === rustCount, "Rust titles must be exactly 41 (chapters 4..44)");
+
+      for (let i = 0; i < rustCount; i += 1) {
+        const chapterNumber = CONFIG.firstRustChapter + i;
+        const weekStart = startEpochDay + (i * 7);
+        const weekSwitch = weekStart + 7;
+        const title = rustTitles[i];
+
+        assert(typeof title === "string" && title.length > 0, "Invalid title");
+        items.push(Object.freeze({
+          idx: i,
+          label: title,
+          kind: "rust",
+          chapterNumber,
+          weekStart,
+          weekSwitch
+        }));
+      }
+
+      const gitIdx = items.length;
+      const gitStart = startEpochDay + (gitIdx * 7);
+      const gitSwitch = gitStart + 7;
+      items.push(Object.freeze({
+        idx: gitIdx,
+        label: "Git",
+        kind: "git",
+        chapterNumber: 45,
+        weekStart: gitStart,
+        weekSwitch: gitSwitch
+      }));
+
+      assert(items.length === 42, "Expected total weeks: 41 Rust + 1 Git = 42");
+      return Object.freeze(items);
+    }
+
+    function computeCurrentWeekIndex(schedule) {
+      assert(Array.isArray(schedule) && schedule.length > 0, "Invalid schedule");
+      const startEpochDay = schedule[0].weekStart;
+      const todayEpochDay = epochDayTodayInTz(CONFIG.tzName);
+      const diffDays = todayEpochDay - startEpochDay;
+      const weekIndex = Math.floor(diffDays / 7);
+      return weekIndex; // may be negative / beyond schedule
+    }
+
+    function statusForIndex(i, currentIndex) {
+      if (i < currentIndex) return "done";
+      if (i === currentIndex) return "current";
+      return "upcoming";
+    }
+
+    // ---------------------------------------------------------------------
+    // Rendering
+    // ---------------------------------------------------------------------
+    function el(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (typeof text === "string") node.textContent = text;
+      return node;
+    }
+
+    function render(schedule, currentIndex) {
+      const root = document.getElementById("calendarRoot");
+      assert(root, "Missing calendarRoot");
+
+      const groups = new Map();
+      for (let i = 0; i < schedule.length; i += 1) {
+        const item = schedule[i];
+        const key = monthKeyFromEpochDay(item.weekStart);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(item);
+      }
+
+      const keys = Array.from(groups.keys()).sort();
+      for (let k = 0; k < keys.length; k += 1) {
+        const key = keys[k];
+
+        const monthSection = el("section", "rounded-2xl border border-slate-800/70 bg-slate-900/30 shadow-sm");
+        monthSection.id = "month-" + key;
+
+        const header = el("div", "flex items-center justify-between border-b border-slate-800/70 px-5 py-4");
+        header.appendChild(el("h3", "text-base font-semibold tracking-tight", monthLabelFromMonthKey(key)));
+        header.appendChild(el("p", "text-xs text-slate-400", "Weeks: " + String(groups.get(key).length)));
+        monthSection.appendChild(header);
+
+        const grid = el("div", "grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3");
+
+        const items = groups.get(key);
+        for (let i = 0; i < items.length; i += 1) {
+          const item = items[i];
+          const status = statusForIndex(item.idx, currentIndex);
+
+          const isCurrent = status === "current";
+          const isDone = status === "done";
+
+          const cardBase = "relative overflow-hidden rounded-xl border p-4 shadow-sm transition";
+          const cardClass =
+            isCurrent
+              ? cardBase + " border-emerald-400/50 bg-emerald-500/10 ring-2 ring-emerald-400/30"
+              : isDone
+                ? cardBase + " border-slate-800/70 bg-slate-950/20 opacity-90 hover:opacity-100"
+                : cardBase + " border-slate-800/70 bg-slate-950/10 hover:bg-slate-950/20";
+
+          const card = el("div", cardClass);
+          card.dataset.weekIndex = String(item.idx);
+          if (isCurrent) card.id = "this-week";
+
+          if (isCurrent) {
+            const glow = el("div", "pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full bg-emerald-400/20 blur-2xl");
+            card.appendChild(glow);
+          }
+
+          const topRow = el("div", "flex items-start justify-between gap-3");
+          const titleWrap = el("div", "flex-1");
+          // No truncation: titles can wrap so they're never cut off.
+          titleWrap.appendChild(el("p", "text-sm font-semibold leading-snug text-slate-100 break-words", item.label));
+          titleWrap.appendChild(el("p", "mt-1 text-xs text-slate-300", formatRangeStartToSwitch(item.weekStart, item.weekSwitch)));
+          topRow.appendChild(titleWrap);
+
+          const badgeText = isCurrent ? "This week" : isDone ? "Done" : "Upcoming";
+          const badgeClass =
+            isCurrent
+              ? "inline-flex shrink-0 items-center rounded-full bg-emerald-400/15 px-2.5 py-1 text-xs font-medium text-emerald-200 ring-1 ring-emerald-400/30"
+              : isDone
+                ? "inline-flex shrink-0 items-center rounded-full bg-slate-700/30 px-2.5 py-1 text-xs font-medium text-slate-200 ring-1 ring-slate-700/40"
+                : "inline-flex shrink-0 items-center rounded-full bg-indigo-400/10 px-2.5 py-1 text-xs font-medium text-indigo-200 ring-1 ring-indigo-400/20";
+
+          topRow.appendChild(el("span", badgeClass, badgeText));
+          card.appendChild(topRow);
+
+          const weekNo = item.kind === "git" ? "Week 45" : ("Ch. " + String(item.chapterNumber));
+          const meta = el("div", "mt-3 flex items-center justify-between text-xs text-slate-400");
+          meta.appendChild(el("span", "", weekNo + " • " + "Week " + String(item.idx + 1) + " of " + String(schedule.length)));
+          meta.appendChild(el("span", "", item.kind === "git" ? "Tooling" : "Rust"));
+          card.appendChild(meta);
+
+          grid.appendChild(card);
+        }
+
+        monthSection.appendChild(grid);
+        root.appendChild(monthSection);
+      }
+    }
+
+    function updateHeader(schedule, currentIndex) {
+      const todayYmd = ymdTodayInTz(CONFIG.tzName);
+
+      const todayText = document.getElementById("todayText");
+      assert(todayText, "Missing todayText");
+      // Display today using the same local-date logic as the schedule.
+      const todayEpoch = epochDayFromYMD(todayYmd);
+      todayText.textContent = "Today in " + CONFIG.tzName + ": " + formatEpochDay(todayEpoch);
+
+      const clampedIndex = Math.min(Math.max(currentIndex, 0), schedule.length - 1);
+      const thisWeek = schedule[clampedIndex];
+
+      const thisWeekLabel = document.getElementById("thisWeekLabel");
+      const thisWeekRange = document.getElementById("thisWeekRange");
+      const thisWeekSwitch = document.getElementById("thisWeekSwitch");
+      const weeksRemaining = document.getElementById("weeksRemaining");
+      const finishDate = document.getElementById("finishDate");
+      assert(thisWeekLabel && thisWeekRange && thisWeekSwitch && weeksRemaining && finishDate, "Missing header elements");
+
+      const outOfRange = currentIndex < 0
+        ? "Not started yet"
+        : currentIndex >= schedule.length
+          ? "Schedule completed"
+          : thisWeek.label;
+
+      thisWeekLabel.textContent = outOfRange;
+
+      if (currentIndex < 0) {
+        const startEpoch = epochDayFromYMD(CONFIG.startDate);
+        thisWeekRange.textContent = "Starts: " + formatEpochDay(startEpoch);
+        thisWeekSwitch.textContent = "First switch: " + formatEpochDay(schedule[0].weekSwitch);
+      } else if (currentIndex >= schedule.length) {
+        const finalSwitch = schedule[schedule.length - 1].weekSwitch;
+        thisWeekRange.textContent = "Finished on: " + formatEpochDay(finalSwitch);
+        thisWeekSwitch.textContent = "—";
+      } else {
+        thisWeekRange.textContent = formatRangeStartToSwitch(thisWeek.weekStart, thisWeek.weekSwitch);
+        thisWeekSwitch.textContent = "Switch on: " + formatEpochDay(thisWeek.weekSwitch);
+      }
+
+      const remaining = Math.max(schedule.length - Math.max(currentIndex, 0), 0);
+      weeksRemaining.textContent = String(remaining);
+
+      const finishSwitch = schedule[schedule.length - 1].weekSwitch;
+      finishDate.textContent = "Finish (switch) on: " + formatEpochDay(finishSwitch);
+
+      // Progress
+      const doneWeeks = Math.min(Math.max(currentIndex, 0), schedule.length);
+      const pct = Math.round((doneWeeks / schedule.length) * 100);
+
+      const progressText = document.getElementById("progressText");
+      const progressPct = document.getElementById("progressPct");
+      const progressBar = document.getElementById("progressBar");
+      assert(progressText && progressPct && progressBar, "Missing progress elements");
+
+      progressText.textContent = "Progress: " + String(doneWeeks) + " / " + String(schedule.length) + " weeks";
+      progressPct.textContent = String(pct) + "%";
+      progressBar.style.width = String(pct) + "%";
+    }
+
+    function updateQuote(currentIndex) {
+      const q = QUOTES[Math.abs(currentIndex) % QUOTES.length];
+      const qt = document.getElementById("quoteText");
+      const qa = document.getElementById("quoteAuthor");
+      assert(qt && qa, "Missing quote elements");
+      qt.textContent = "\u201C" + q.t + "\u201D";
+      qa.textContent = "\u2014 " + q.a;
+    }
+
+    function attachJump() {
+      const btn = document.getElementById("jumpToThisWeekBtn");
+      assert(btn, "Missing jump button");
+      btn.addEventListener("click", () => {
+        const node = document.getElementById("this-week");
+        if (!node) return;
+        node.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    }
+
+    // ---------------------------------------------------------------------
+    // Boot
+    // ---------------------------------------------------------------------
+    (function boot() {
+      const schedule = buildSchedule();
+      const currentIndex = computeCurrentWeekIndex(schedule);
+
+      updateQuote(currentIndex);
+      updateHeader(schedule, currentIndex);
+      render(schedule, currentIndex);
+      attachJump();
+    })();
+  </script>
+</body>
+</html>
