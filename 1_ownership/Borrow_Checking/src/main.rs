@@ -207,7 +207,7 @@ fn main() {
     //. Lets say we have a function to return the first word in a string what would our return type be 
     //. We could return an index to the first space we find? For emaple if the String is "Hi how" then we return 2 since the first space is at index 2. Thus everything before index 2 contains the first word.
 
-    //~ The implimentation would look something like this
+    //~ The implimentation would look something like this                     
     {
         fn main() {
             let mut s = String::from("Hi, how are you?");
