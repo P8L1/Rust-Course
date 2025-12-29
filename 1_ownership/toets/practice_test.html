@@ -1,0 +1,1297 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rust Practice Test — Ownership, Borrowing, References, Slices</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-slate-950 text-slate-100">
+    <div class="max-w-5xl mx-auto px-4 py-10">
+      <header class="mb-8">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">
+              Rust Practice Test
+            </h1>
+            <p class="text-slate-300 mt-1">
+              Topics: ownership, moves vs copies, cloning, borrowing & references, reference scopes, dangling references,
+              slices (&str and array slices).
+            </p>
+          </div>
+
+          <div class="w-full sm:w-auto rounded-2xl border border-slate-800 bg-slate-900 p-4">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <div class="text-xs text-slate-400">Timer</div>
+                <div class="text-xl font-semibold tabular-nums" id="timerDisplay">45:00</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <select
+                  id="timerPreset"
+                  class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm"
+                  aria-label="Timer preset"
+                >
+                  <option value="1800">30 min</option>
+                  <option value="2700" selected>45 min</option>
+                  <option value="3600">60 min</option>
+                </select>
+                <button
+                  id="startBtn"
+                  class="rounded-xl bg-emerald-600 hover:bg-emerald-500 px-3 py-2 text-sm font-semibold"
+                >
+                  Start
+                </button>
+                <button
+                  id="pauseBtn"
+                  class="rounded-xl bg-slate-800 hover:bg-slate-700 px-3 py-2 text-sm font-semibold"
+                >
+                  Pause
+                </button>
+                <button
+                  id="resetBtn"
+                  class="rounded-xl bg-slate-800 hover:bg-slate-700 px-3 py-2 text-sm font-semibold"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+            <div class="mt-3 text-xs text-slate-400">
+              Tip: For best practice, don’t open the Answer Key until you’ve graded yourself.
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-5">
+          <h2 class="font-semibold">Instructions</h2>
+          <ul class="mt-2 list-disc pl-5 text-slate-300 space-y-1">
+            <li>Answer based ONLY on the notes your teacher gave you (no outside Rust knowledge needed).</li>
+            <li>Most questions are code-based: decide whether it compiles, what rule is violated, or how to fix it.</li>
+            <li>Auto-graded questions can be scored with “Grade Auto-Questions”. Written answers are self-checked with the Answer Key.</li>
+          </ul>
+        </div>
+      </header>
+
+      <main class="space-y-6">
+        <!-- Helpers -->
+        <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <div class="text-sm text-slate-300">
+            Auto-graded: <span class="font-semibold" id="autoCount">0</span> questions
+          </div>
+          <div class="flex gap-2">
+            <button
+              id="gradeBtn"
+              class="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-sm font-semibold"
+            >
+              Grade Auto-Questions
+            </button>
+            <button
+              id="toggleKeyBtn"
+              class="rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-2 text-sm font-semibold"
+            >
+              Show Answer Key
+            </button>
+          </div>
+        </div>
+
+        <div id="scoreBox" class="hidden rounded-2xl border border-slate-800 bg-slate-900 p-5">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <div class="text-xs text-slate-400">Auto-score</div>
+              <div class="text-2xl font-bold" id="scoreText">0 / 0</div>
+            </div>
+            <div class="text-sm text-slate-300" id="scoreNote">
+              Written answers are not auto-graded. Use the Answer Key to self-check.
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION A -->
+        <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <h2 class="text-xl font-bold">Section A — Ownership & Scope</h2>
+          <p class="text-slate-300 mt-1">Decide what is valid, what is dropped, and why.</p>
+
+          <!-- Q1 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">1) Which line fails to compile, and why?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn main() {
+    {
+        let greeting = "hello";
+        println!("inside: {greeting}");
+    }
+    println!("outside: {greeting}");
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q1" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q1" value="A" class="mt-1" />
+                <span>A) Line <code>println!("inside...")</code> fails because greeting is not mutable.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q1" value="B" class="mt-1" />
+                <span>B) Line <code>println!("outside...")</code> fails because greeting went out of scope (dropped).</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q1" value="C" class="mt-1" />
+                <span>C) Both println lines fail because string literals always live on the heap.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q1" value="D" class="mt-1" />
+                <span>D) Nothing fails; both lines compile and run.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q1">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — <code>greeting</code> is only valid inside the inner scope; once that scope ends, it’s no longer valid.</div>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">2) What happens to ownership here?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn main() {
+    let points = 7;
+    let also_points = points;
+
+    let name = String::from("Rusty");
+    let other_name = name;
+
+    println!("{points} {also_points}");
+    println!("{name}");
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q2" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q2" value="A" class="mt-1" />
+                <span>A) Both prints compile; integers and Strings are always copied.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q2" value="B" class="mt-1" />
+                <span>B) The first print compiles, the second fails because <code>name</code> was moved to <code>other_name</code>.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q2" value="C" class="mt-1" />
+                <span>C) The first print fails because <code>points</code> was moved to <code>also_points</code>.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q2" value="D" class="mt-1" />
+                <span>D) Both prints fail because printing requires mutable access.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q2">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — integers are copied, but a <code>String</code> move makes <code>name</code> invalid after <code>let other_name = name;</code>.</div>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">3) Which version keeps both variables usable?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <p class="text-slate-300 mt-2">Choose the option that makes both <code>a</code> and <code>b</code> valid after the assignment.</p>
+
+            <div class="mt-4 space-y-2" data-qid="q3" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q3" value="A" class="mt-1" />
+                <span>A) <code>let b = a;</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q3" value="B" class="mt-1" />
+                <span>B) <code>let b = a.clone();</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q3" value="C" class="mt-1" />
+                <span>C) <code>let b = &a;</code> (and keep everything else the same)</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q3" value="D" class="mt-1" />
+                <span>D) <code>let b = mut a;</code></span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q3">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — cloning duplicates the heap data, so both variables can be used.</div>
+            </div>
+          </div>
+
+          <!-- Q4 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">4) Stack vs heap for <code>String</code></h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <p class="text-slate-300 mt-2">
+              Based on the notes’ memory diagrams (ptr/len/capacity), which statement matches them?
+            </p>
+
+            <div class="mt-4 space-y-2" data-qid="q4" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q4" value="A" class="mt-1" />
+                <span>A) The characters live on the stack; ptr/len/capacity live on the heap.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q4" value="B" class="mt-1" />
+                <span>B) ptr/len/capacity live on the stack; the characters live on the heap.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q4" value="C" class="mt-1" />
+                <span>C) Everything about a String is always stored only on the stack.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q4" value="D" class="mt-1" />
+                <span>D) Everything about a String is always stored only on the heap.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q4">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — the stack holds ptr/len/capacity; ptr points to the characters on the heap.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION B -->
+        <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <h2 class="text-xl font-bold">Section B — Ownership With Functions</h2>
+          <p class="text-slate-300 mt-1">Moves into functions, copies, and how to keep using values.</p>
+
+          <!-- Q5 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">5) What is the first thing that fails?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn takes_ownership(s: String) {
+    println!("{s}");
+}
+
+fn main() {
+    let title = String::from("hello");
+    takes_ownership(title);
+    println!("after: {title}");
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q5" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q5" value="A" class="mt-1" />
+                <span>A) <code>let title = ...</code> fails because Strings can’t be created in main.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q5" value="B" class="mt-1" />
+                <span>B) <code>takes_ownership(title);</code> fails because functions cannot accept Strings.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q5" value="C" class="mt-1" />
+                <span>C) The last println fails because ownership moved into the function.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q5" value="D" class="mt-1" />
+                <span>D) Nothing fails; it compiles and prints both lines.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q5">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">C — after the move into <code>takes_ownership</code>, <code>title</code> is no longer valid in <code>main</code>.</div>
+            </div>
+          </div>
+
+          <!-- Q6 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">6) Which function signature matches “borrow a String and return its first char”?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <p class="text-slate-300 mt-2">Pick the signature that matches the “fix using a reference” idea in the notes.</p>
+
+            <div class="mt-4 space-y-2" data-qid="q6" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q6" value="A" class="mt-1" />
+                <span>A) <code>fn first_char(s: String) -&gt; char</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q6" value="B" class="mt-1" />
+                <span>B) <code>fn first_char(s: &amp;String) -&gt; char</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q6" value="C" class="mt-1" />
+                <span>C) <code>fn first_char(s: &amp;mut String) -&gt; String</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q6" value="D" class="mt-1" />
+                <span>D) <code>fn first_char() -&gt; char</code></span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q6">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — borrowing via <code>&amp;String</code> keeps ownership in the caller.</div>
+            </div>
+          </div>
+
+          <!-- Q7 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">7) Copy into a function vs move into a function</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn copies_ownership(x: i32) {
+    println!("in fn: {x}");
+}
+
+fn main() {
+    let lives = 3;
+    copies_ownership(lives);
+    println!("after: {lives}");
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q7" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q7" value="A" class="mt-1" />
+                <span>A) The last println fails; <code>lives</code> was moved into the function.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q7" value="B" class="mt-1" />
+                <span>B) It compiles; integers are copied (not moved).</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q7" value="C" class="mt-1" />
+                <span>C) It compiles only if <code>lives</code> is mutable.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q7" value="D" class="mt-1" />
+                <span>D) It fails because functions cannot take parameters by value.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q7">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — notes say integers are copied, so <code>lives</code> is still valid.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION C -->
+        <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <h2 class="text-xl font-bold">Section C — Borrowing Rules & Reference Scopes</h2>
+          <p class="text-slate-300 mt-1">One mutable OR many immutable; references must be valid; reference scope ends at last use.</p>
+
+          <!-- Q8 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">8) Which borrowing rule is being broken?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn main() {
+    let mut msg = String::from("Hi");
+    let a = &msg;
+    let b = &mut msg;
+    println!("{a} {b}");
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q8" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q8" value="A" class="mt-1" />
+                <span>A) References must always be valid.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q8" value="B" class="mt-1" />
+                <span>B) You can have either one mutable reference OR any number of immutable references at a time.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q8" value="C" class="mt-1" />
+                <span>C) Each value can have any number of owners.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q8" value="D" class="mt-1" />
+                <span>D) Values are never dropped.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q8">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — an immutable reference exists while creating a mutable reference.</div>
+            </div>
+          </div>
+
+          <!-- Q9 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">9) Does this compile? (Think: “scope ends at last use”)</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn main() {
+    let mut s = String::from("Hello");
+    let view = &s;
+    println!("view: {view}");
+    let edit = &mut s;
+    edit.push_str("!");
+    println!("{s}");
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q9" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q9" value="A" class="mt-1" />
+                <span>A) Yes, because <code>view</code> is last used before <code>edit</code> is created.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q9" value="B" class="mt-1" />
+                <span>B) No, because once you create an immutable reference, you can never create a mutable reference again.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q9" value="C" class="mt-1" />
+                <span>C) No, because <code>push_str</code> is only allowed on immutable references.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q9" value="D" class="mt-1" />
+                <span>D) Yes, but only if <code>view</code> was declared as <code>&amp;mut</code>.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q9">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">A — notes: a reference’s scope ends at its last use, so after the println, the immutable borrow is effectively over.</div>
+            </div>
+          </div>
+
+          <!-- Q10 (written) -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">10) Written: Mark the last use of the immutable reference</h3>
+              <span class="text-xs text-slate-400">Written</span>
+            </div>
+
+            <p class="text-slate-300 mt-2">Write the exact line number (1–7) where the immutable reference is used for the last time.</p>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>1  fn main() {
+2      let mut s = String::from("A");
+3      let r = &s;
+4      println!("r: {r}");
+5      // some other work here
+6      let m = &mut s;
+7      m.push_str("B");
+8  }</code></pre>
+
+            <textarea
+              class="mt-4 w-full min-h-[90px] rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm"
+              placeholder="Answer: line ___, because ..."
+            ></textarea>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q10">
+              <div class="font-semibold">Sample answer:</div>
+              <div class="text-slate-300 mt-1">
+                Line 4 — <code>r</code> is last used in the <code>println!</code>. Notes say the scope ends at last use, so after line 4 there’s no immutable reference to block the mutable one.
+              </div>
+            </div>
+          </div>
+
+          <!-- Q11 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">11) Which set of references is allowed at one time?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <p class="text-slate-300 mt-2">Select the one option that follows borrowing rule 1.</p>
+
+            <div class="mt-4 space-y-2" data-qid="q11" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q11" value="A" class="mt-1" />
+                <span>A) Two mutable references to the same value in the same scope.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q11" value="B" class="mt-1" />
+                <span>B) One mutable reference and one immutable reference to the same value at the same time.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q11" value="C" class="mt-1" />
+                <span>C) Any number of immutable references to the same value at the same time.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q11" value="D" class="mt-1" />
+                <span>D) One mutable reference, plus any number of other mutable references, if the value is a String.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q11">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">C — borrowing rule 1 allows any number of immutable references, OR exactly one mutable reference.</div>
+            </div>
+          </div>
+
+          <!-- Q12 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">12) Mutable references: what must be true at the call site?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn change_text(x: &mut String) {
+    x.push_str("bar");
+}
+
+fn main() {
+    let text = String::from("foo");
+    // call change_text here
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q12" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q12" value="A" class="mt-1" />
+                <span>A) <code>text</code> must be declared with <code>let mut text</code>.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q12" value="B" class="mt-1" />
+                <span>B) <code>change_text</code> must return <code>String</code> instead of <code>()</code>.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q12" value="C" class="mt-1" />
+                <span>C) You must call <code>change_text(text.clone())</code>.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q12" value="D" class="mt-1" />
+                <span>D) The function must accept <code>&amp;String</code> not <code>&amp;mut String</code>.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q12">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">A — notes: to make a mutable reference, the referenced variable must be mutable.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION D -->
+        <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <h2 class="text-xl font-bold">Section D — Dangling References</h2>
+          <p class="text-slate-300 mt-1">References must always be valid.</p>
+
+          <!-- Q13 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">13) Why is this invalid?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn make_ref() -> &String {
+    let s = String::from("Hello");
+    &s
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q13" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q13" value="A" class="mt-1" />
+                <span>A) It’s invalid because Strings cannot be returned from functions.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q13" value="B" class="mt-1" />
+                <span>B) It’s invalid because the function returns a reference to data that is dropped when the function ends.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q13" value="C" class="mt-1" />
+                <span>C) It’s invalid because the reference should be mutable.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q13" value="D" class="mt-1" />
+                <span>D) It’s invalid because <code>&amp;s</code> moves ownership.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q13">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">
+                B — the local <code>s</code> is dropped at end of function, so returning <code>&amp;s</code> would reference invalid data (notes mention lifetimes later).
+              </div>
+            </div>
+          </div>
+
+          <!-- Q14 (written) -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">14) Written: Explain the core rule being violated (1–2 sentences)</h3>
+              <span class="text-xs text-slate-400">Written</span>
+            </div>
+
+            <p class="text-slate-300 mt-2">Answer using the notes’ wording/idea (no outside concepts needed).</p>
+
+            <textarea
+              class="mt-3 w-full min-h-[120px] rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm"
+              placeholder="Your explanation..."
+            ></textarea>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q14">
+              <div class="font-semibold">Sample answer:</div>
+              <div class="text-slate-300 mt-1">
+                “References must always be valid.” Here the function returns a reference to <code>s</code>, but <code>s</code> is dropped when the function ends, so the reference would point to data that doesn’t exist.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION E -->
+        <section class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <h2 class="text-xl font-bold">Section E — Slices</h2>
+          <p class="text-slate-300 mt-1">Index-based “first word” problem, then string slices (&str) and other slice syntax.</p>
+
+          <!-- Q15 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">15) Index-returning <code>first_word</code>: what’s the logical bug risk?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn first_word_index(s: &String) -> usize {
+    let bytes = s.as_bytes();
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return i;
+        }
+    }
+    s.len()
+}
+
+fn main() {
+    let mut s = String::from("Hi, how are you?");
+    let idx = first_word_index(&s);
+    s.clear();
+    // idx is still the old number here
+    println!("idx: {idx}");
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q15" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q15" value="A" class="mt-1" />
+                <span>A) The program won’t compile because <code>usize</code> can’t be printed.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q15" value="B" class="mt-1" />
+                <span>B) The returned number isn’t tied to the string; if the string changes, the number may become meaningless.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q15" value="C" class="mt-1" />
+                <span>C) The loop must use recursion; otherwise it’s “bad Rust”.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q15" value="D" class="mt-1" />
+                <span>D) The bug is that <code>b' '</code> checks for a comma, not a space.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q15">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — notes: the number is not tied to the string, so updates to the string can make the old index wrong.</div>
+            </div>
+          </div>
+
+          <!-- Q16 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">16) Which return type matches a “string slice” solution?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>// You want the return value to be a slice of the input,
+// not a new owned String and not just a number.
+fn first_word(____) -> ____ {
+    // ...
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q16" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q16" value="A" class="mt-1" />
+                <span>A) Parameter: <code>&amp;String</code>, Return: <code>usize</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q16" value="B" class="mt-1" />
+                <span>B) Parameter: <code>&amp;str</code>, Return: <code>&amp;str</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q16" value="C" class="mt-1" />
+                <span>C) Parameter: <code>String</code>, Return: <code>String</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q16" value="D" class="mt-1" />
+                <span>D) Parameter: <code>i32</code>, Return: <code>&amp;str</code></span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q16">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — notes show <code>fn first_word(some_string_input: &amp;str) -&gt; &amp;str</code>.</div>
+            </div>
+          </div>
+
+          <!-- Q17 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">17) Slice syntax: which equals “first 5 characters”?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn main() {
+    let s = String::from("Hello world");
+    // Choose the expression that produces "Hello"
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q17" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q17" value="A" class="mt-1" />
+                <span>A) <code>&amp;s[6..]</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q17" value="B" class="mt-1" />
+                <span>B) <code>&amp;s[..5]</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q17" value="C" class="mt-1" />
+                <span>C) <code>&amp;s[5..]</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q17" value="D" class="mt-1" />
+                <span>D) <code>&amp;s[..]</code></span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q17">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — notes: <code>&amp;some_string[..5]</code> can be used instead of <code>[0..5]</code>.</div>
+            </div>
+          </div>
+
+          <!-- Q18 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">18) Slice syntax: which equals “from index 6 to the end”?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn main() {
+    let s = String::from("Hello world");
+    // Choose the expression that produces "world"
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q18" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q18" value="A" class="mt-1" />
+                <span>A) <code>&amp;s[6..]</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q18" value="B" class="mt-1" />
+                <span>B) <code>&amp;s[..6]</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q18" value="C" class="mt-1" />
+                <span>C) <code>&amp;s[0..6]</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q18" value="D" class="mt-1" />
+                <span>D) <code>&amp;s[..]</code></span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q18">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">A — notes: omit the end index if slicing to the end (<code>[6..]</code> instead of <code>[6..11]</code>).</div>
+            </div>
+          </div>
+
+          <!-- Q19 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">19) Which slice spans the entire string?</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <div class="mt-4 space-y-2" data-qid="q19" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q19" value="A" class="mt-1" />
+                <span>A) <code>&amp;s[0..]</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q19" value="B" class="mt-1" />
+                <span>B) <code>&amp;s[..]</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q19" value="C" class="mt-1" />
+                <span>C) Both A and B are valid ways to represent the entire string slice.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q19" value="D" class="mt-1" />
+                <span>D) Neither; you can’t slice the entire string.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q19">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">C — notes explicitly mention using <code>[..]</code>, and starting at 0 is optional when slicing from the start.</div>
+            </div>
+          </div>
+
+          <!-- Q20 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">20) Does this compile? (slice + clear)</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn first_word(s: &str) -> &str {
+    let bytes = s.as_bytes();
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &s[0..i];
+        }
+    }
+    &s[..]
+}
+
+fn main() {
+    let mut s = String::from("Hi there");
+    let w = first_word(&s);
+    s.clear();
+    println!("w: {w}");
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q20" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q20" value="A" class="mt-1" />
+                <span>A) Yes, because <code>w</code> is just a copy of characters.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q20" value="B" class="mt-1" />
+                <span>B) No, because <code>w</code> is a reference (slice) and the string is modified while the reference exists.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q20" value="C" class="mt-1" />
+                <span>C) Yes, but only if <code>w</code> is mutable.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q20" value="D" class="mt-1" />
+                <span>D) No, because <code>as_bytes()</code> requires ownership of the string.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q20">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — slices don’t take ownership; they’re references, so modifying the string while the slice exists breaks the rules (reference must remain valid).</div>
+            </div>
+          </div>
+
+          <!-- Q21 (written) -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">21) Written: Make it compile (minimal change)</h3>
+              <span class="text-xs text-slate-400">Written</span>
+            </div>
+
+            <p class="text-slate-300 mt-2">
+              You want to still print the first word, and also clear the string afterward. Rewrite only the order of statements inside <code>main</code>.
+            </p>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn main() {
+    let mut s = String::from("Hi there");
+    let w = first_word(&s);
+    s.clear();
+    println!("w: {w}");
+}</code></pre>
+
+            <textarea
+              class="mt-4 w-full min-h-[140px] rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm"
+              placeholder="Paste your rewritten main() body here..."
+            ></textarea>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q21">
+              <div class="font-semibold">Sample answer:</div>
+              <pre class="mt-2 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn main() {
+    let mut s = String::from("Hi there");
+    let w = first_word(&s);
+    println!("w: {w}");
+    s.clear();
+}</code></pre>
+              <div class="text-slate-300 mt-2">
+                Reason: the slice <code>w</code> is last used in the println; after that last use, it’s dropped (notes: scope ends at last use), so clearing is allowed.
+              </div>
+            </div>
+          </div>
+
+          <!-- Q22 -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">22) Slices on arrays</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>fn main() {
+    let scores = [12, 15, 31, 50, 4, 17];
+    let part = &scores[..1];
+    // What is inside `part`?
+}</code></pre>
+
+            <div class="mt-4 space-y-2" data-qid="q22" data-type="single">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q22" value="A" class="mt-1" />
+                <span>A) It contains all the numbers.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q22" value="B" class="mt-1" />
+                <span>B) It contains exactly one element: <code>[12]</code>.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q22" value="C" class="mt-1" />
+                <span>C) It contains the first two elements: <code>[12, 15]</code>.</span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="radio" name="q22" value="D" class="mt-1" />
+                <span>D) It contains the last element only: <code>[17]</code>.</span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q22">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">B — slicing <code>[..1]</code> takes elements up to (but not including) index 1, so it’s only index 0.</div>
+            </div>
+          </div>
+
+          <!-- Q23 (written) -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">23) Written: Create an array slice with the first three elements</h3>
+              <span class="text-xs text-slate-400">Written</span>
+            </div>
+
+            <pre class="mt-3 overflow-x-auto rounded-xl bg-black/40 p-4 text-sm leading-relaxed"><code>let scores = [12, 15, 31, 50, 4, 17];
+// Write ONE line that creates a slice containing [12, 15, 31]</code></pre>
+
+            <textarea
+              class="mt-4 w-full min-h-[90px] rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm"
+              placeholder="Your one-liner here..."
+            ></textarea>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q23">
+              <div class="font-semibold">Sample answer:</div>
+              <div class="text-slate-300 mt-1"><code>let first_three = &scores[..3];</code></div>
+            </div>
+          </div>
+
+          <!-- Q24 (multi) -->
+          <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <h3 class="font-semibold">24) Select ALL that violate borrowing rule 1 (same value, same scope)</h3>
+              <span class="text-xs text-slate-400">Auto</span>
+            </div>
+
+            <p class="text-slate-300 mt-2">
+              Assume every snippet happens inside one <code>main</code> scope, and all references point to the same <code>String s</code>.
+              Check every option that is NOT allowed.
+            </p>
+
+            <div class="mt-4 space-y-2" data-qid="q24" data-type="multi">
+              <label class="flex gap-2 cursor-pointer">
+                <input type="checkbox" value="A" class="mt-1" />
+                <span>A) <code>let a = &s; let b = &s;</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="checkbox" value="B" class="mt-1" />
+                <span>B) <code>let a = &mut s;</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="checkbox" value="C" class="mt-1" />
+                <span>C) <code>let a = &mut s; let b = &mut s;</code></span>
+              </label>
+              <label class="flex gap-2 cursor-pointer">
+                <input type="checkbox" value="D" class="mt-1" />
+                <span>D) <code>let a = &s; let b = &mut s;</code></span>
+              </label>
+            </div>
+
+            <div class="answerKey hidden mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4" data-key="q24">
+              <div class="font-semibold">Answer:</div>
+              <div class="text-slate-300 mt-1">
+                Violations: C and D. <br />
+                A is allowed (many immutable). B is allowed (one mutable).
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="pt-2 text-sm text-slate-400">
+          <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+            <div class="font-semibold text-slate-200">Done?</div>
+            <ul class="mt-2 list-disc pl-5 space-y-1">
+              <li>Grade auto-questions.</li>
+              <li>Open the Answer Key and self-check written ones.</li>
+              <li>For every miss: write (a) the rule name/number, and (b) the minimal fix.</li>
+            </ul>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        // -----------------------------
+        // Timer
+        // -----------------------------
+        const timerDisplay = document.getElementById("timerDisplay");
+        const timerPreset = document.getElementById("timerPreset");
+        const startBtn = document.getElementById("startBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+
+        let remainingSeconds = Number(timerPreset.value);
+        let timerId = null;
+
+        function assert(cond, msg) {
+          if (!cond) {
+            throw new Error(msg);
+          }
+        }
+
+        function formatTime(totalSeconds) {
+          assert(Number.isFinite(totalSeconds), "formatTime: totalSeconds must be a number");
+          const clamped = Math.max(0, Math.floor(totalSeconds));
+          const minutes = Math.floor(clamped / 60);
+          const seconds = clamped % 60;
+          const mm = String(minutes).padStart(2, "0");
+          const ss = String(seconds).padStart(2, "0");
+          return `${mm}:${ss}`;
+        }
+
+        function renderTimer() {
+          timerDisplay.textContent = formatTime(remainingSeconds);
+        }
+
+        function stopTimer() {
+          if (timerId !== null) {
+            clearInterval(timerId);
+            timerId = null;
+          }
+        }
+
+        function startTimer() {
+          if (timerId !== null) {
+            return;
+          }
+          timerId = setInterval(function () {
+            remainingSeconds -= 1;
+            if (remainingSeconds <= 0) {
+              remainingSeconds = 0;
+              renderTimer();
+              stopTimer();
+              timerDisplay.classList.add("text-rose-400");
+            } else {
+              timerDisplay.classList.remove("text-rose-400");
+              renderTimer();
+            }
+          }, 1000);
+        }
+
+        timerPreset.addEventListener("change", function () {
+          stopTimer();
+          remainingSeconds = Number(timerPreset.value);
+          timerDisplay.classList.remove("text-rose-400");
+          renderTimer();
+        });
+
+        startBtn.addEventListener("click", function () {
+          startTimer();
+        });
+
+        pauseBtn.addEventListener("click", function () {
+          stopTimer();
+        });
+
+        resetBtn.addEventListener("click", function () {
+          stopTimer();
+          remainingSeconds = Number(timerPreset.value);
+          timerDisplay.classList.remove("text-rose-400");
+          renderTimer();
+        });
+
+        renderTimer();
+
+        // -----------------------------
+        // Grading (Auto Questions)
+        // -----------------------------
+        const answerKey = {
+          q1: { type: "single", correct: ["B"] },
+          q2: { type: "single", correct: ["B"] },
+          q3: { type: "single", correct: ["B"] },
+          q4: { type: "single", correct: ["B"] },
+          q5: { type: "single", correct: ["C"] },
+          q6: { type: "single", correct: ["B"] },
+          q7: { type: "single", correct: ["B"] },
+          q8: { type: "single", correct: ["B"] },
+          q9: { type: "single", correct: ["A"] },
+          q11: { type: "single", correct: ["C"] },
+          q12: { type: "single", correct: ["A"] },
+          q13: { type: "single", correct: ["B"] },
+          q15: { type: "single", correct: ["B"] },
+          q16: { type: "single", correct: ["B"] },
+          q17: { type: "single", correct: ["B"] },
+          q18: { type: "single", correct: ["A"] },
+          q19: { type: "single", correct: ["C"] },
+          q20: { type: "single", correct: ["B"] },
+          q22: { type: "single", correct: ["B"] },
+          q24: { type: "multi", correct: ["C", "D"] },
+        };
+
+        const autoCountEl = document.getElementById("autoCount");
+        const scoreBox = document.getElementById("scoreBox");
+        const scoreText = document.getElementById("scoreText");
+        const scoreNote = document.getElementById("scoreNote");
+        const gradeBtn = document.getElementById("gradeBtn");
+        const toggleKeyBtn = document.getElementById("toggleKeyBtn");
+
+        function arraysEqualAsSets(a, b) {
+          assert(Array.isArray(a) && Array.isArray(b), "arraysEqualAsSets: inputs must be arrays");
+          const sa = new Set(a);
+          const sb = new Set(b);
+          if (sa.size !== sb.size) {
+            return false;
+          }
+          for (const x of sa) {
+            if (!sb.has(x)) {
+              return false;
+            }
+          }
+          return true;
+        }
+
+        function getSelectedSingle(qid) {
+          const selected = document.querySelector(`input[name="${qid}"]:checked`);
+          if (!selected) {
+            return [];
+          }
+          return [selected.value];
+        }
+
+        function getSelectedMulti(container) {
+          const boxes = container.querySelectorAll('input[type="checkbox"]:checked');
+          const values = [];
+          for (let i = 0; i < boxes.length && i < 1000; i += 1) {
+            values.push(boxes[i].value);
+          }
+          return values;
+        }
+
+        function setCardState(containerEl, isCorrect) {
+          assert(containerEl instanceof HTMLElement, "setCardState: containerEl must be an element");
+          containerEl.classList.remove("ring-2", "ring-emerald-500", "ring-rose-500");
+          containerEl.classList.add("ring-2", isCorrect ? "ring-emerald-500" : "ring-rose-500");
+        }
+
+        function findQuestionCard(containerEl) {
+          // Walk up to the closest question card.
+          let node = containerEl;
+          for (let i = 0; i < 30 && node; i += 1) {
+            if (node.classList && node.classList.contains("bg-slate-950")) {
+              return node;
+            }
+            node = node.parentElement;
+          }
+          return null;
+        }
+
+        function countAutoQuestions() {
+          const keys = Object.keys(answerKey);
+          return keys.length;
+        }
+
+        function gradeAll() {
+          const keys = Object.keys(answerKey);
+          let total = 0;
+          let correct = 0;
+
+          for (let i = 0; i < keys.length && i < 2000; i += 1) {
+            const qid = keys[i];
+            const spec = answerKey[qid];
+            total += 1;
+
+            const container = document.querySelector(`[data-qid="${qid}"]`);
+            if (!container) {
+              continue;
+            }
+
+            let selected = [];
+            if (spec.type === "single") {
+              selected = getSelectedSingle(qid);
+            } else if (spec.type === "multi") {
+              selected = getSelectedMulti(container);
+            }
+
+            const isCorrect = arraysEqualAsSets(selected, spec.correct);
+
+            const card = findQuestionCard(container);
+            if (card) {
+              setCardState(card, isCorrect);
+            }
+
+            if (isCorrect) {
+              correct += 1;
+            }
+          }
+
+          scoreBox.classList.remove("hidden");
+          scoreText.textContent = `${correct} / ${total}`;
+          scoreNote.textContent =
+            "Written answers are not auto-graded. Open the Answer Key to self-check those.";
+        }
+
+        gradeBtn.addEventListener("click", function () {
+          gradeAll();
+        });
+
+        // -----------------------------
+        // Answer key toggle
+        // -----------------------------
+        let keyVisible = false;
+
+        function setKeyVisible(visible) {
+          keyVisible = visible;
+          const blocks = document.querySelectorAll(".answerKey");
+          for (let i = 0; i < blocks.length && i < 5000; i += 1) {
+            if (visible) {
+              blocks[i].classList.remove("hidden");
+            } else {
+              blocks[i].classList.add("hidden");
+            }
+          }
+          toggleKeyBtn.textContent = visible ? "Hide Answer Key" : "Show Answer Key";
+        }
+
+        toggleKeyBtn.addEventListener("click", function () {
+          setKeyVisible(!keyVisible);
+        });
+
+        // -----------------------------
+        // Init
+        // -----------------------------
+        autoCountEl.textContent = String(countAutoQuestions());
+        setKeyVisible(false);
+      })();
+    </script>
+  </body>
+</html>
