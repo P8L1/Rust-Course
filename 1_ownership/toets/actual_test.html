@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rust Ownership, Borrowing, References & Slices - Mastery Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .answer-field {
+      width: 100%;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #cbd5e1;
+      border-radius: 0.75rem;
+      padding: 0.75rem 0.875rem;
+      color: #0f172a;
+      line-height: 1.5;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
+      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .answer-field:focus {
+      outline: none;
+      border-color: #475569;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.25), inset 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+
+    .answer-field::placeholder {
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <header class="space-y-4">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Rust Ownership, Borrowing, References & Slices — Full Mastery Test</h1>
+          <p class="text-slate-600 mt-1">
+            Answer directly from the notes. No outside rules, no extra Rust facts. Use reasoning and application, especially on code.
+          </p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm w-full sm:w-auto">
+          <div class="text-sm text-slate-600">Total Points</div>
+          <div class="text-2xl font-bold"><span id="totalPointsTop">120</span> pts</div>
+        </div>
+      </div>
+
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm lg:col-span-2">
+      <h2 class="font-semibold text-lg">Instructions</h2>
+      <ul class="mt-2 space-y-1 text-slate-700 list-disc pl-5">
+        <li>Answer each question. Every question shows its points.</li>
+        <li>For code questions: decide <strong>compile vs not</strong>, predict output, identify the violated rule, or provide the minimal fix (only using ideas from the notes).</li>
+        <li>Memory/recall is only required for the enumerated rule lists explicitly in the notes.</li>
+        <li>Borrow Checking Mastery is a gate: score full points in that section to claim mastery of the borrow checker.</li>
+        <li>Use the timer if you want an exam-style run.</li>
+      </ul>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <h2 class="font-semibold text-lg">Timer</h2>
+
+      <div id="timeBanner" class="hidden mt-3 p-3 rounded-lg bg-rose-50 border border-rose-200">
+        <div class="font-bold text-rose-700 text-center text-lg">Time!</div>
+      </div>
+
+      <div class="mt-3 flex items-end gap-3">
+        <div class="flex-1">
+          <label for="durationMinutes" class="block text-sm text-slate-600">Duration (minutes)</label>
+          <input id="durationMinutes" type="number" min="1" max="600" value="45"
+                 class="mt-1 w-full rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0" />
+        </div>
+        <div class="text-right">
+          <div class="text-sm text-slate-600">Remaining</div>
+          <div id="timerDisplay" class="text-2xl font-bold tabular-nums">45:00</div>
+        </div>
+      </div>
+
+      <div class="mt-3 flex gap-2">
+        <button id="startBtn" class="flex-1 rounded-lg bg-slate-900 text-white px-3 py-2 text-sm font-semibold hover:bg-slate-800">Start</button>
+        <button id="pauseBtn" class="flex-1 rounded-lg bg-white border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-slate-50">Pause</button>
+        <button id="resetBtn" class="flex-1 rounded-lg bg-white border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-slate-50">Reset</button>
+      </div>
+
+      <div class="mt-3">
+        <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+          <div id="progressBar" class="h-full bg-slate-900 w-0"></div>
+        </div>
+        <div class="mt-2 text-xs text-slate-600">
+          Tip: set duration before starting. Reset re-enables editing.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <h2 class="font-semibold text-lg">Code Coverage Summary</h2>
+        <p class="text-slate-700 mt-1">
+          Code-based points: <strong>90</strong> / <strong>120</strong> = <strong>75%</strong>
+        </p>
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Meets 70-80% requirement</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 text-slate-800 px-3 py-1 text-xs font-semibold border border-slate-200">Mostly code reasoning</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- SECTION 1 -->
+<section class="mt-8 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Section 1 — Warnings Control</h2>
+    <div class="text-sm text-slate-600">Section points: 4</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q1 <span class="text-slate-500 font-normal">(2 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Which statement most precisely matches the meaning of this line in the notes?
+          <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">#![allow(warnings)]</span>
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">MCQ</span>
+      </div>
+    </div>
+
+    <div class="mt-4 space-y-2">
+      <label class="flex items-center gap-2">
+        <input type="radio" name="q1" class="text-slate-900" />
+        <span>Rust won't show warnings for this program, but errors still appear.</span>
+      </label>
+      <label class="flex items-center gap-2">
+        <input type="radio" name="q1" class="text-slate-900" />
+        <span>Rust won't show errors.</span>
+      </label>
+      <label class="flex items-center gap-2">
+        <input type="radio" name="q1" class="text-slate-900" />
+        <span>Rust won’t allocate memory on the heap.</span>
+      </label>
+      <label class="flex items-center gap-2">
+        <input type="radio" name="q1" class="text-slate-900" />
+        <span>Rust will automatically clone all values.</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q2 <span class="text-slate-500 font-normal">(2 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          In the context of these notes, answer in two parts:
+          <strong>(a)</strong> what warning(s) would normally be shown for this code,
+          <strong>(b)</strong> what changes when <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">#![allow(warnings)]</span> is present and does the output change?
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Short answer</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>#![allow(warnings)]
+
+
+fn main() {
+    let unused = 42;
+    println!("Hello");
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[90px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="(a) ...&#10;(b) ..."></textarea>
+  </div>
+</section>
+
+<!-- SECTION 2 -->
+<section class="mt-10 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Section 2 — Ownership Rules & Scope</h2>
+    <div class="text-sm text-slate-600">Section points: 14</div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q3 <span class="text-slate-500 font-normal">(3 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Write the <strong>three ownership rules</strong> as a numbered list, then add a short consequence for each rule (3-6 words).
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Recall (allowed list)</span>
+      </div>
+    </div>
+
+    <textarea class="answer-field mt-4 w-full min-h-[110px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="1) Rule ... -> consequence ...&#10;2) Rule ... -> consequence ...&#10;3) Rule ... -> consequence ..."></textarea>
+  </div>
+
+  <!-- Q4 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q4 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          The notes say values get dropped when the owner goes out of scope. In the code below:
+          <strong>(a)</strong> does it compile? 
+          <strong>(b)</strong> if not, point to the exact line(s) that fail and name the ownership rule(s) involved.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Compile / explain</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let msg = String::from("hello");
+
+    {
+        let inner = msg;
+        println!("{inner}");
+    }
+
+    println!("{msg}");
+
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[120px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="(a) ...&#10;(b) Line(s) + rule(s): ..."></textarea>
+  </div>
+
+  <!-- Q5 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q5 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          <strong>(a)</strong> compile or not and why?
+          <strong>(b)</strong> Provide the <em>minimal fix</em> so both print lines work without changing them, if the code wont compile.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Debug / minimal fix</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let animal = String::from("cat");
+    let pet = animal;
+    let tag = pet;
+
+    println!("animal = {animal}");
+    println!("tag = {tag}");
+
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[140px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="(a) ...&#10;(b) Write the minimal code change..."></textarea>
+  </div>
+
+  <!-- Q6 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q6 <span class="text-slate-500 font-normal">(3 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          The notes say: "There can only be one owner at a time."
+          Explain (using only what the notes teach) why this code still fits that rule (Some keywords need to be included):
+          <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">let x = 5; let y = x; let z = x;</span>
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Explain</span>
+      </div>
+    </div>
+
+    <textarea class="answer-field mt-4 w-full min-h-[110px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Your explanation..."></textarea>
+  </div>
+</section>
+
+<!-- SECTION 3 -->
+<section class="mt-10 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Section 3 — (Stack/Heap Model)</h2>
+    <div class="text-sm text-slate-600">Section points: 16</div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q7 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Predict the output and describe (briefly) where the values live in memory according to the notes.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Output + memory</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let mut x = 7;
+    let y = x;
+    x = 9;
+
+    println!("x={x}, y={y}");
+
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[140px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Output: ...&#10;Memory: ..."></textarea>
+  </div>
+
+  <!-- Q8 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q8 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+            Explain in 2 to 3 sentences what this code does with refrence to memory. Eg. X allocates a int to the heap, x is then moved into y
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Model selection</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let string_one = String::from("Rusty");
+    let string_two = string_one;
+    let string_three = string_two;
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[120px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Chosen option: ...&#10;Explanation: ..."></textarea>
+  </div>
+
+  <!-- Q9 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q9 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          The notes show that <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">clone()</span> creates a different memory picture.
+          For the code below, describe which variables are valid after each line and how many heap allocations exist in the model.
+          Use the notes' stack/heap idea (ptr/len/capacity + heap characters).
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Diagram/model</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+let s1 = String::from("abc");
+let s2 = s1.clone();
+let s3 = s2;
+}</code></pre>
+
+    <textarea class="answer-field mt-4 w-full min-h-[140px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Line-by-line validity + heap allocation count..."></textarea>
+  </div>
+
+  <!-- Q10 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q10 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Does this compile? If yes, what prints? If no, which line fails and what minimal fix works (use only clone or reordering).
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Compile/output</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let s1 = String::from("abc");
+    let s2 = s1.clone();
+    let s3 = s2;
+
+    println!("s1={s1}, s2={s2}, s3={s3}");
+
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[140px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Compile? ...&#10;Failing line/reason: ...&#10;Minimal fix: ..."></textarea>
+  </div>
+</section>
+
+<!-- SECTION 4 -->
+<section class="mt-10 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Section 4 — Ownership When Calling Functions (and Borrowing)</h2>
+    <div class="text-sm text-slate-600">Section points: 10</div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q11 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Using only the notes: does this compile? If not, explain precisely what happened to ownership and why the print lines fail.
+          Then give the minimal fix using only the notes.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Compile/explain</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn takes_and_gives(s: String) -&gt; String {
+    println!("inside: {s}");
+    return s;
+}
+
+fn main() {
+    let name = String::from("Ana");
+    let alias = takes_and_gives(name);
+
+    println!("outside: {name}");
+    println!("alias: {alias}");
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[140px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Compile? ...&#10;Ownership explanation: ...&#10;Minimal fix: ..."></textarea>
+  </div>
+
+  <!-- Q12 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q12 <span class="text-slate-500 font-normal">(3 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Complete the two blanks so that ownership stays in <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">main</span> while still letting the function read the string multiple times.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Fill blanks</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn get_first_letter_fix(s: ________) -&gt; char {
+    return s.chars().nth(0).expect("String has no chars");
+}
+
+fn main() {
+    let s = String::from("hello");
+    let first = get_first_letter_fix(________);
+    let second = get_first_letter_fix(________);
+    println!("s={s}, first={first}, second={second}");
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[90px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Blank 1: ...&#10;Blank 2: ..."></textarea>
+  </div>
+
+  <!-- Q13 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q13 <span class="text-slate-500 font-normal">(3 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Explain (in your own words) what <strong>borrowing</strong> means in these notes and what problem it is meant to solve.
+          
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Explain</span>
+      </div>
+    </div>
+
+    <textarea class="answer-field mt-4 w-full min-h-[120px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Your explanation..."></textarea>
+  </div>
+</section>
+
+  <!-- Q13.2 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q13.2 <span class="text-slate-500 font-normal">(5 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Draw an ASCII text diagram of what this code looks like in memory
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Fill blanks</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>
+fn main() {
+    let s = String::from("hello");
+    let s2 = &s;
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[90px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Diagram here"></textarea>
+  </div>
+<!-- SECTION 5 -->
+<section class="mt-10 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Section 5 — References </h2>
+    <div class="text-sm text-slate-600">Section points: 10</div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q14 <span class="text-slate-500 font-normal">(2 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          In Rust, references are ______ by default.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">MCQ</span>
+      </div>
+    </div>
+
+    <div class="mt-4 space-y-2">
+      <label class="flex items-center gap-2">
+        <input type="radio" name="q14" class="text-slate-900" />
+        <span>Immutable</span>
+      </label>
+      <label class="flex items-center gap-2">
+        <input type="radio" name="q14" class="text-slate-900" />
+        <span>Mutable if the original variable is <span class="font-mono bg-slate-100 px-1 rounded">mut</span></span>
+      </label>
+      <label class="flex items-center gap-2">
+        <input type="radio" name="q14" class="text-slate-900" />
+        <span>Always moved into functions</span>
+      </label>
+      <label class="flex items-center gap-2">
+        <input type="radio" name="q14" class="text-slate-900" />
+        <span>Always cloned</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q15 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Predict the output. Then explain why <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">mut</span> is needed in two places
+          and wheter or not the inner scope is necessary.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Output + explain</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn change(s: &mut String) {
+    s.push_str("br");
+}
+
+fn main() {
+    let mut s_one = String::from("foo");
+
+    {   
+        let r = &mut s_one;
+        change(r);
+    }
+    
+    let r2 = &mut s_one;
+    r2.push_str("!");
+    
+    println!("{s_one}");
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[160px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Output: ...&#10;Why mut is needed: ...&#10;Why the inner scope matters: ..."></textarea>
+  </div>
+
+  <!-- Q16 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q16 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+            Describe a way for us to use both a mutable and immutable refrence in one scope. Then describe what refrences look like in Memory
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Diagram/model</span>
+      </div>
+    </div>
+
+    <textarea class="answer-field mt-4 w-full min-h-[140px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Your description..."></textarea>
+  </div>
+</section>
+
+<!-- SECTION 6 -->
+<section class="mt-10 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Section 6</h2>
+    <div class="text-sm text-slate-600">Section points: 22</div>
+  </div>
+
+  <!-- Q17 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q17 <span class="text-slate-500 font-normal">(2 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Write the <strong>two borrowing rules</strong> from the notes as a numbered list (content matters; wording can be your own).
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Recall (allowed list)</span>
+      </div>
+    </div>
+
+    <textarea class="answer-field mt-4 w-full min-h-[110px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="1) ...&#10;2) ..."></textarea>
+  </div>
+
+  <!-- Q18 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q18 <span class="text-slate-500 font-normal">(5 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Identify the exact line that "can't happen / won't work" and explain why
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Find broken line</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let mut s = String::from("Hello");
+    let  mut r0 = String::From("foo");
+    let r1 = &mut s;
+    let r3 = &r0
+    
+    {
+        let r2 = &mut s;
+        println!("{r2}");
+    }
+
+    println!("{r1}");
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[140px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Broken line: ...&#10;Reason (rule-based): ..."></textarea>
+  </div>
+
+  <!-- Q19 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q19 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Does this compile? If yes, predict the output and explain why. If no then explain what rule was violated
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Compile/output</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let s = String::from("Hi");
+    let a = &s;
+
+    println!("{}", a);
+
+    let b = &s;
+    println!("{b} {a}");
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[140px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Compile? ...&#10;Output: ...&#10;Why/Why not allowed: ..."></textarea>
+  </div>
+
+  <!-- Q20 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q20 <span class="text-slate-500 font-normal">(5 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Identify the broken line and explain why it fails
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Find broken line</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let mut s = String::from("Hello");
+    let r1 = &s;
+    println!("{r1}");
+
+    let r2 = &mut s;
+    r2.push_str("!");
+
+    println!("{r1}");
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[160px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Broken line: ...&#10;Reason (rule-based): ..."></textarea>
+  </div>
+
+  <!-- Q21 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q21 <span class="text-slate-500 font-normal">(6 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+         
+          Make the code compile by making the <strong>minimal change</strong>  (reorder lines; don't introduce new concepts).
+          Then explain why your fix works.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Debug / minimal fix</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let mut s = String::from("Hello");
+
+    let r1 = &s;
+    let r2 = &s;
+    let r3 = &mut s;
+
+    println!("r1={r1}, r2={r2}");
+
+    r3.push_str(", there!");
+    println!("s={s}");
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[180px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Write the fixed code (or describe exact line reordering), then explain why it works..."></textarea>
+  </div>
+</section>
+
+<!-- SECTION 7 -->
+<section class="mt-10 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Section 7</h2>
+    <div class="text-sm text-slate-600">Section points: 6</div>
+  </div>
+
+  <!-- Q22 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q22 <span class="text-slate-500 font-normal">(4 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Using only the notes: explain why this returns a reference to invalid data.
+          
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Explain why</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn dangle() -&gt; &String {
+    let r;
+    {
+        let s = String::from("Hello");
+        r = &s;
+    }
+    return r;
+}
+
+fn main() {
+    let r = dangle();
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[160px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Your explanation..."></textarea>
+  </div>
+
+  <!-- Q23 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q23 <span class="text-slate-500 font-normal">(2 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          According to the notes, what topic fixes the <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">dangle()</span> problem (later in the future)?
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Short answer</span>
+      </div>
+    </div>
+
+    <input class="answer-field mt-4 w-full rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+           placeholder="Your answer..." />
+  </div>
+</section>
+
+<!-- SECTION 8 -->
+<section class="mt-10 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Section 8 — Slices (String Slices + Array Slices)</h2>
+    <div class="text-sm text-slate-600">Section points: 18</div>
+  </div>
+
+  <!-- Q24 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q24 <span class="text-slate-500 font-normal">(3 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          In your own words (from the notes): what is a <strong>slice</strong>, does a slice take ownership,
+          and how is it tied to the original data?
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Short answer</span>
+      </div>
+    </div>
+
+    <textarea class="answer-field mt-4 w-full min-h-[120px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Your answer..."></textarea>
+  </div>
+
+  <!-- Q25 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q25 <span class="text-slate-500 font-normal">(5 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          This is the “return the first word index” approach:
+          <strong>(a)</strong> For <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">"Hi there"</span>, what does it return?
+          <strong>(b)</strong> Name <strong>two problems</strong> with this approach as taught in the notes.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Reasoning</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn first_word(some_string: &String) -&gt; usize {
+    let bytes = some_string.as_bytes();
+    
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return i;
+        }
+    }
+    
+    return some_string.len();
+}
+
+fn main() {
+    let mut s = String::from("Hi there");
+    let idx = first_word(&s);
+    s.clear();
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[170px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="(a) Return value: ...&#10;(b) Problem 1: ...&#10;(b) Problem 2: ..."></textarea>
+  </div>
+
+  <!-- Q26 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q26 <span class="text-slate-500 font-normal">(6 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          For the string <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">"Hello world"</span>:
+          <strong>(a)</strong> What does each slice contain?
+          <strong>(b)</strong> Which slices are equivalent based on the notes' "optional start/end index" rules?
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Slice reasoning</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let some_string = String::from("Hello world");
+    
+    let a = &some_string[..5];
+    let b = &some_string[6..];
+    let c = &some_string[..];
+    
+    let d = &some_string[0..5];
+    let e = &some_string[6..11];
+    let f = &some_string[..11];
+    let g = &some_string[0..];
+    
+    println!("{a} | {b} | {c} | {d} | {e} | {f} | {g}");
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[200px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="(a) a=..., b=..., c=..., d=..., e=..., f=..., g=...&#10;(b) Equivalent groups: ..."></textarea>
+  </div>
+
+  <!-- Q27 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q27 <span class="text-slate-500 font-normal">(2 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          In the notes’ slice-based <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">first_word</span> implementation
+          (the one that returns <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">&amp;str</span>),
+          what does it return if <strong>no spaces</strong> are found in the input?
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Short answer</span>
+      </div>
+    </div>
+
+    <input class="answer-field mt-4 w-full rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+           placeholder="Your answer..." />
+  </div>
+
+  <!-- Q28 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q28 <span class="text-slate-500 font-normal">(2 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Using the notes' idea that slices don't take ownership:
+          <strong>(a)</strong> which elements are included in <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">part</span>?
+          <strong>(b)</strong> can <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">nums</span> still be used after creating <span class="font-mono bg-slate-100 px-2 py-0.5 rounded">part</span>?
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Slice reasoning</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let nums = [12, 15, 31, 50, 4, 17];
+    let part = &nums[1..4];
+
+    // ...
+}</code></pre>
+
+
+    <textarea class="answer-field mt-4 w-full min-h-[120px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="(a) part contains: ...&#10;(b) nums usable after? ..."></textarea>
+  </div>
+</section>
+
+<!-- SECTION 9 -->
+<section class="mt-10 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Section 9 - Borrow Checking Mastery (Gate)</h2>
+    <div class="text-sm text-slate-600">Section points: 20</div>
+  </div>
+
+  <!-- Q29 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q29 <span class="text-slate-500 font-normal">(5 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Does this compile? If yes, predict the output and explain 
+          If not, explain exactly why.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Borrow checker</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let mut s = String::from("book");
+    let r1 = &s;
+    let len = r1.len();
+
+    let r2 = &mut s;
+    r2.push_str("s");
+
+    println!("len={len}, s={s}");
+}</code></pre>
+
+    <textarea class="answer-field mt-4 w-full min-h-[160px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Compile? ...&#10;Output: ...&#10;Reasoning: ..."></textarea>
+  </div>
+
+  <!-- Q30 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q30 <span class="text-slate-500 font-normal">(5 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Make this compile with the <strong>minimal change</strong> .
+          Explain which borrowing rule your fix respects.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Minimal fix</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn main() {
+    let mut s = String::from("hi");
+    let r1 = &mut s;
+    let r2 = &mut s;
+
+    r1.push_str("!");
+    r2.push_str("?");
+
+    println!("{s}");
+}</code></pre>
+
+    <textarea class="answer-field mt-4 w-full min-h-[170px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Fixed code (or exact line changes) + rule explanation..."></textarea>
+  </div>
+
+  <!-- Q31 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q31 <span class="text-slate-500 font-normal">(5 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Identify the line that fails, then give the minimal fix.
+          Explain using the borrowing rules.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Borrow checker</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn first_word(s: &String) -&gt; &str {
+    &s[..]
+}
+
+fn main() {
+    let mut s = String::from("hello world");
+    let word = first_word(&s);
+    s.clear();
+    println!("{word}");
+}</code></pre>
+
+    <textarea class="answer-field mt-4 w-full min-h-[170px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Failing line + minimal fix + rule-based explanation..."></textarea>
+  </div>
+
+  <!-- Q32 -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="font-semibold">Q32 <span class="text-slate-500 font-normal">(5 pts)</span></div>
+        <div class="mt-1 text-slate-700">
+          Does this compile? If not, provide the minimal fix (reorder only) and explain using the borrowing rules.
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-3 py-1 text-xs font-semibold">Code</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold border border-slate-200">Borrow checker</span>
+      </div>
+    </div>
+
+    <pre class="mt-4 bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm"><code>fn shout(s: &mut String) {
+    s.push_str("!");
+}
+
+fn main() {
+    let mut s = String::from("hi");
+    let view = &s[0..1];
+    shout(&mut s);
+    println!("{view}");
+}</code></pre>
+
+    <textarea class="answer-field mt-4 w-full min-h-[170px] rounded-lg border-slate-300 focus:border-slate-400 focus:ring-0"
+              placeholder="Compile? ...&#10;Minimal fix: ...&#10;Rule-based explanation: ..."></textarea>
+  </div>
+</section>
+
+<!-- Coverage Checklist -->
+<section class="mt-12">
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <h2 class="text-xl font-bold">Coverage Checklist</h2>
+    <p class="text-slate-600 mt-1">
+      Each item below is a concept explicitly taught in the notes, with how many questions target it.
+    </p>
+
+    <div class="mt-4 overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left border-b border-slate-200">
+            <th class="py-2 pr-4 font-semibold">Concept (from notes)</th>
+            <th class="py-2 pr-4 font-semibold">Questions</th>
+            <th class="py-2 pr-4 font-semibold">Count</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="py-3 pr-4">#![allow(warnings)] means Rust won’t show warnings</td>
+            <td class="py-3 pr-4">Q1–Q2</td>
+            <td class="py-3 pr-4 font-semibold">2</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Ownership rules (3 rules)</td>
+            <td class="py-3 pr-4">Q3–Q6</td>
+            <td class="py-3 pr-4 font-semibold">4</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Copy for integers (stack only; heap not used)</td>
+            <td class="py-3 pr-4">Q6–Q7</td>
+            <td class="py-3 pr-4 font-semibold">2</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">String move (ownership transfer; old variable invalid)</td>
+            <td class="py-3 pr-4">Q5, Q8, Q11</td>
+            <td class="py-3 pr-4 font-semibold">3</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">clone() for Strings (both variables valid; distinct model)</td>
+            <td class="py-3 pr-4">Q5, Q9–Q10</td>
+            <td class="py-3 pr-4 font-semibold">3</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Passing String into function takes ownership; passing int copies</td>
+            <td class="py-3 pr-4">Q11–Q12</td>
+            <td class="py-3 pr-4 font-semibold">2</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Borrowing = passing references so ownership stays with caller</td>
+            <td class="py-3 pr-4">Q12–Q13</td>
+            <td class="py-3 pr-4 font-semibold">2</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">References are immutable by default</td>
+            <td class="py-3 pr-4">Q14</td>
+            <td class="py-3 pr-4 font-semibold">1</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Mutable references: &amp;mut, referenced variable must be mutable</td>
+            <td class="py-3 pr-4">Q15</td>
+            <td class="py-3 pr-4 font-semibold">1</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Reference memory model (reference ptr → owner stack → heap)</td>
+            <td class="py-3 pr-4">Q16</td>
+            <td class="py-3 pr-4 font-semibold">1</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Borrowing Rule 1: one mutable OR many immutable; can't mix in same time</td>
+            <td class="py-3 pr-4">Q17-Q21, Q29-Q30, Q32</td>
+            <td class="py-3 pr-4 font-semibold">8</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Reference scope ends at last use (mixing immut then mut)</td>
+            <td class="py-3 pr-4">Q21, Q29, Q32</td>
+            <td class="py-3 pr-4 font-semibold">3</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Borrowing Rule 2: references must always be valid (dangling reference)</td>
+            <td class="py-3 pr-4">Q22-Q23</td>
+            <td class="py-3 pr-4 font-semibold">2</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Borrow checker mastery: mixed borrows, last-use, slice + mutation</td>
+            <td class="py-3 pr-4">Q29-Q32</td>
+            <td class="py-3 pr-4 font-semibold">4</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Slices: reference continuous sequence; slices don’t take ownership</td>
+            <td class="py-3 pr-4">Q24, Q28</td>
+            <td class="py-3 pr-4 font-semibold">2</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Index-based first_word approach; problems: not tied + hard to refactor</td>
+            <td class="py-3 pr-4">Q25</td>
+            <td class="py-3 pr-4 font-semibold">1</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">String slice syntax: [..5], [6..], [..], optional start/end</td>
+            <td class="py-3 pr-4">Q26</td>
+            <td class="py-3 pr-4 font-semibold">1</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Slice-based first_word: returns &amp;str; no spaces → returns whole slice</td>
+            <td class="py-3 pr-4">Q27</td>
+            <td class="py-3 pr-4 font-semibold">1</td>
+          </tr>
+          <tr>
+            <td class="py-3 pr-4">Array slices example</td>
+            <td class="py-3 pr-4">Q28</td>
+            <td class="py-3 pr-4 font-semibold">1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Answer Key -->
+<section class="mt-8">
+  <details class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <summary class="cursor-pointer select-none">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold">Answer Key + Marking Guide (Hidden)</h2>
+        <span class="text-slate-600 text-sm">Click to expand</span>
+      </div>
+    </summary>
+
+    <div class="mt-5 space-y-6 text-sm text-slate-800">
+      <div class="rounded-lg bg-slate-50 border border-slate-200 p-4">
+        <div class="font-semibold">Marking notes</div>
+        <ul class="mt-2 list-disc pl-5 space-y-1">
+          <li>Full points require using the exact ideas from the notes (ownership, borrowing rules, scope drop, move/copy/clone, slices).</li>
+          <li>For code questions: credit depends on correct compile/output/fix + correct rule-based explanation.</li>
+          <li>For recall questions (ownership rules, borrowing rules): must contain all items.</li>
+          <li>Borrow Checking Mastery section is a gate: full points required for mastery claim.</li>
+        </ul>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <div class="font-semibold">Q1 (2 pts)</div>
+          <div>Correct: "Rust won't show warnings for this program, but errors still appear."</div>
+          <div class="text-slate-600 mt-1">Full credit: selects correct option.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q2 (2 pts)</div>
+          <div>Expected: Normally an unused variable warning would appear; with <span class="font-mono bg-slate-100 px-1 rounded">#![allow(warnings)]</span> it is suppressed. Output still prints <span class="font-mono bg-slate-100 px-1 rounded">Hello</span>.</div>
+          <div class="text-slate-600 mt-1">1 pt: mentions warnings suppressed. 2 pts: includes output unchanged.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q3 (3 pts)</div>
+          <div>Ownership rules (content):</div>
+          <ol class="list-decimal pl-5 mt-1 space-y-1">
+            <li>Each value has a variable called its owner.</li>
+            <li>Only one owner at a time.</li>
+            <li>When the owner goes out of scope, the value is dropped.</li>
+          </ol>
+          <div class="text-slate-600 mt-1">1 pt per rule + short consequence (must include all three rules).</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q4 (4 pts)</div>
+          <div>(a) Does not compile. (b) The failing line is <span class="font-mono bg-slate-100 px-1 rounded">println!("{msg}");</span>. Ownership moved to <span class="font-mono bg-slate-100 px-1 rounded">inner</span>, so <span class="font-mono bg-slate-100 px-1 rounded">msg</span> is invalid; then <span class="font-mono bg-slate-100 px-1 rounded">inner</span> is dropped when the block ends.</div>
+          <div class="text-slate-600 mt-1">2 pts: identifies failing line(s). 2 pts: correct rule-based reason (move + scope drop).</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q5 (4 pts)</div>
+          <div>(a) Does not compile because ownership moved from <span class="font-mono bg-slate-100 px-1 rounded">animal</span> to <span class="font-mono bg-slate-100 px-1 rounded">pet</span> and then to <span class="font-mono bg-slate-100 px-1 rounded">tag</span>. (b) Minimal fix: clone before the first move so <span class="font-mono bg-slate-100 px-1 rounded">animal</span> stays valid:</div>
+          <pre class="mt-2 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-x-auto text-xs"><code>let pet = animal.clone();
+let tag = pet;</code></pre>
+          <div class="text-slate-600 mt-1">2 pts: move chain reason. 2 pts: correct minimal fix using clone at the first move.</div>
+        </div>
+
+
+        <div>
+          <div class="font-semibold">Q6 (3 pts)</div>
+          <div>Expected: Integers are copied (not moved). So <span class="font-mono bg-slate-100 px-1 rounded">y</span> and <span class="font-mono bg-slate-100 px-1 rounded">z</span> each get their own copies on the stack; each variable owns its own value, so there is no shared owner.</div>
+          <div class="text-slate-600 mt-1">Full credit: mentions copied, stack-only, and rule-2 consistency.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q7 (4 pts)</div>
+          <div>Output: <span class="font-mono bg-slate-100 px-1 rounded">x=9, y=7</span>. Memory: stack only; heap not used (per notes for integers).</div>
+          <div class="text-slate-600 mt-1">2 pts output, 2 pts memory explanation.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q8 (4 pts)</div>
+          <div>Correct: Option A. After the moves, <span class="font-mono bg-slate-100 px-1 rounded">string_one</span> and <span class="font-mono bg-slate-100 px-1 rounded">string_two</span> are invalid; <span class="font-mono bg-slate-100 px-1 rounded">string_three</span> owns the heap data.</div>
+          <div class="text-slate-600 mt-1">2 pts correct option, 2 pts explanation referencing move and invalidated variables.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q9 (4 pts)</div>
+          <div>Expected: After <span class="font-mono bg-slate-100 px-1 rounded">s1</span> is created, it owns one heap allocation. After <span class="font-mono bg-slate-100 px-1 rounded">s2 = s1.clone()</span>, both <span class="font-mono bg-slate-100 px-1 rounded">s1</span> and <span class="font-mono bg-slate-100 px-1 rounded">s2</span> are valid and there are two heap allocations. After <span class="font-mono bg-slate-100 px-1 rounded">s3 = s2</span>, <span class="font-mono bg-slate-100 px-1 rounded">s2</span> is invalid and <span class="font-mono bg-slate-100 px-1 rounded">s3</span> owns the second heap allocation; <span class="font-mono bg-slate-100 px-1 rounded">s1</span> still owns the first.</div>
+          <div class="text-slate-600 mt-1">Full credit: line-by-line validity plus correct heap allocation count.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q10 (4 pts)</div>
+          <div>Does not compile. <span class="font-mono bg-slate-100 px-1 rounded">s2</span> is moved into <span class="font-mono bg-slate-100 px-1 rounded">s3</span>, so using <span class="font-mono bg-slate-100 px-1 rounded">s2</span> in the print fails. Minimal fix: clone before the move (e.g. <span class="font-mono bg-slate-100 px-1 rounded">let s3 = s2.clone();</span>) or print before the move.</div>
+          <div class="text-slate-600 mt-1">2 pts: failing line + reason. 2 pts: valid minimal fix.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q11 (4 pts)</div>
+          <div>Does not compile. <span class="font-mono bg-slate-100 px-1 rounded">name</span> is moved into <span class="font-mono bg-slate-100 px-1 rounded">takes_and_gives</span>, so the later print of <span class="font-mono bg-slate-100 px-1 rounded">name</span> fails even though <span class="font-mono bg-slate-100 px-1 rounded">alias</span> is valid. Minimal fix: clone before the call or change the function to borrow.</div>
+          <div class="text-slate-600 mt-1">Full credit: states ownership transfer + provides a valid minimal fix.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q12 (3 pts)</div>
+          <div>Blank 1: <span class="font-mono bg-slate-100 px-1 rounded">&amp;String</span>. Blank 2: <span class="font-mono bg-slate-100 px-1 rounded">&amp;s</span> (used for both calls).</div>
+          <div class="text-slate-600 mt-1">1.5 pts per blank.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q13 (3 pts)</div>
+          <div>Expected: Borrowing means passing a reference so the function can use the value without taking ownership; ownership stays with the caller. It solves the problem of needing to still use the original value after a function call.</div>
+          <div class="text-slate-600 mt-1">Full credit: includes "reference" + "ownership stays with caller" + "solves use-after-call problem."</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q14 (2 pts)</div>
+          <div>Correct: Immutable (you need <span class="font-mono bg-slate-100 px-1 rounded">&amp;mut</span> to change through it).</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q15 (4 pts)</div>
+          <div>Output: <span class="font-mono bg-slate-100 px-1 rounded">foobar!</span>. Mut is needed because the variable being referenced must be mutable and the reference must be <span class="font-mono bg-slate-100 px-1 rounded">&amp;mut</span>. The inner scope ensures the first mutable borrow ends before the second begins.</div>
+          <div class="text-slate-600 mt-1">2 pts output, 2 pts explanation (mut variable + &amp;mut reference + scope ends).</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q16 (4 pts)</div>
+          <div>Expected: The reference lives on the stack and stores a pointer to the owner’s stack data (the String struct with ptr/len/capacity). That owner’s ptr then points to the heap where the characters live.</div>
+          <div class="text-slate-600 mt-1">Full credit: includes stack/heap + pointer chain (ref → owner stack → heap chars).</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q17 (2 pts)</div>
+          <div>Borrowing rules (content):</div>
+          <ol class="list-decimal pl-5 mt-1 space-y-1">
+            <li>At any time: either one mutable reference OR any number of immutable references.</li>
+            <li>References must always be valid.</li>
+          </ol>
+          <div class="text-slate-600 mt-1">1 pt per rule.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q18 (5 pts)</div>
+          <div>Broken line: <span class="font-mono bg-slate-100 px-1 rounded">let r2 = &amp;mut s;</span>. Reason: Borrowing Rule 1 - <span class="font-mono bg-slate-100 px-1 rounded">r1</span> is an active mutable reference (used later), so a second mutable reference is not allowed.</div>
+          <div class="text-slate-600 mt-1">2 pts broken line, 3 pts correct rule-based explanation.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q19 (4 pts)</div>
+          <div>Compiles. Output lines: <span class="font-mono bg-slate-100 px-1 rounded">Hi</span> then <span class="font-mono bg-slate-100 px-1 rounded">Hi Hi</span>. Allowed because any number of immutable references is permitted.</div>
+          <div class="text-slate-600 mt-1">2 pts compile/output, 2 pts rule-based reason.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q20 (5 pts)</div>
+          <div>Broken line: <span class="font-mono bg-slate-100 px-1 rounded">let r2 = &amp;mut s;</span> because <span class="font-mono bg-slate-100 px-1 rounded">r1</span> is used later. Reason: immutable references don't expect the value to change; a mutable reference would allow changes while an immutable reference is still active.</div>
+          <div class="text-slate-600 mt-1">2 pts broken line, 3 pts explanation matching notes.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q21 (6 pts)</div>
+          <div>Minimal fix: use <span class="font-mono bg-slate-100 px-1 rounded">r1</span> and <span class="font-mono bg-slate-100 px-1 rounded">r2</span> for the last time before creating <span class="font-mono bg-slate-100 px-1 rounded">r3</span>. For example:</div>
+          <pre class="mt-2 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-x-auto text-xs"><code>let r1 = &s;
+let r2 = &s;
+
+println!("r1={r1}, r2={r2}");
+let r3 = &mut s;</code></pre>
+          <div>Why: the scope of <span class="font-mono bg-slate-100 px-1 rounded">r1</span>/<span class="font-mono bg-slate-100 px-1 rounded">r2</span> ends at their last use, so after that a mutable reference can be created.</div>
+          <div class="text-slate-600 mt-1">4 pts correct minimal fix, 2 pts explanation using "last use ends scope" idea.</div>
+        </div>
+
+
+        <div>
+          <div class="font-semibold">Q22 (4 pts)</div>
+          <div>Expected: <span class="font-mono bg-slate-100 px-1 rounded">s</span> is created inside the inner block, then goes out of scope and is dropped when that block ends. Returning <span class="font-mono bg-slate-100 px-1 rounded">r</span> returns a reference to data that no longer exists - invalid reference.</div>
+          <div class="text-slate-600 mt-1">Full credit: mentions scope end + drop + reference points to non-existent data.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q23 (2 pts)</div>
+          <div>Answer: Lifetimes (learned later in the future).</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q24 (3 pts)</div>
+          <div>Expected: A slice is a reference to a continuous sequence of elements within a collection (not the entire collection). It does not take ownership and is tied to the original data.</div>
+          <div class="text-slate-600 mt-1">2 pts correct definition, 1 pt "doesn't take ownership" + tied to data.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q25 (5 pts)</div>
+          <div>(a) Returns <span class="font-mono bg-slate-100 px-1 rounded">2</span> (the index of the first space in “Hi there”).</div>
+          <div>(b) Two problems from notes:</div>
+          <ul class="list-disc pl-5 mt-1 space-y-1">
+            <li>The returned index is not tied to the string value; after changing/clearing the string, the number can be wrong unless you recompute.</li>
+            <li>Hard to refactor (e.g., to return the second word you’d need to return more info like a tuple with start/end indices).</li>
+          </ul>
+          <div class="text-slate-600 mt-1">2 pts correct return value, 3 pts for two correct problems (1.5 each).</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q26 (6 pts)</div>
+          <div>(a) For "Hello world":</div>
+          <ul class="list-disc pl-5 mt-1 space-y-1">
+            <li>a = "Hello"</li>
+            <li>b = "world"</li>
+            <li>c = "Hello world"</li>
+            <li>d = "Hello"</li>
+            <li>e = "world"</li>
+            <li>f = "Hello world"</li>
+            <li>g = "Hello world"</li>
+          </ul>
+          <div class="mt-2">(b) Equivalences from notes: <span class="font-mono bg-slate-100 px-1 rounded">[..5]</span> is equivalent to <span class="font-mono bg-slate-100 px-1 rounded">[0..5]</span>; <span class="font-mono bg-slate-100 px-1 rounded">[6..]</span> is equivalent to <span class="font-mono bg-slate-100 px-1 rounded">[6..11]</span>; <span class="font-mono bg-slate-100 px-1 rounded">[..11]</span> is equivalent to <span class="font-mono bg-slate-100 px-1 rounded">[..]</span> for this string length; <span class="font-mono bg-slate-100 px-1 rounded">[0..]</span> is the full string.</div>
+          <div class="text-slate-600 mt-1">3 pts correct contents, 3 pts correct equivalences.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q27 (2 pts)</div>
+          <div>Expected: It returns the entire string as a string slice (the notes’ version returns <span class="font-mono bg-slate-100 px-1 rounded">&amp;some_string_input[..]</span> when no spaces are found).</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q28 (2 pts)</div>
+          <div>(a) <span class="font-mono bg-slate-100 px-1 rounded">part</span> includes the middle three elements: <span class="font-mono bg-slate-100 px-1 rounded">[15, 31, 50]</span>. (b) Yes, <span class="font-mono bg-slate-100 px-1 rounded">nums</span> can still be used because the slice is a reference and does not take ownership (per notes).</div>
+          <div class="text-slate-600 mt-1">1 pt elements, 1 pt ownership explanation.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q29 (5 pts)</div>
+          <div>Compiles. Output: <span class="font-mono bg-slate-100 px-1 rounded">len=4, s=books</span>. Reason: <span class="font-mono bg-slate-100 px-1 rounded">r1</span> is last used at <span class="font-mono bg-slate-100 px-1 rounded">len</span>, so its immutable borrow ends and the mutable borrow for <span class="font-mono bg-slate-100 px-1 rounded">r2</span> is allowed.</div>
+          <div class="text-slate-600 mt-1">2 pts output, 3 pts rule-based explanation.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q30 (5 pts)</div>
+          <div>Does not compile due to two mutable borrows. Minimal fix: use one mutable reference for both pushes, or split into scopes. Example:</div>
+          <pre class="mt-2 bg-slate-900 text-slate-100 rounded-lg p-3 overflow-x-auto text-xs"><code>let r = &mut s;
+r.push_str("!");
+r.push_str("?");</code></pre>
+          <div class="text-slate-600 mt-1">3 pts minimal fix, 2 pts rule-based explanation (one mutable ref at a time).</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q31 (5 pts)</div>
+          <div>Failing line: <span class="font-mono bg-slate-100 px-1 rounded">s.clear();</span> because <span class="font-mono bg-slate-100 px-1 rounded">word</span> is an immutable slice still used later. Minimal fix: move <span class="font-mono bg-slate-100 px-1 rounded">println!("{word}");</span> before <span class="font-mono bg-slate-100 px-1 rounded">s.clear();</span> (or move <span class="font-mono bg-slate-100 px-1 rounded">s.clear();</span> after the last use).</div>
+          <div class="text-slate-600 mt-1">2 pts broken line, 3 pts minimal fix + explanation.</div>
+        </div>
+
+        <div>
+          <div class="font-semibold">Q32 (5 pts)</div>
+          <div>Does not compile. <span class="font-mono bg-slate-100 px-1 rounded">view</span> is an immutable slice used later, so the mutable borrow in <span class="font-mono bg-slate-100 px-1 rounded">shout(&amp;mut s)</span> is not allowed. Minimal fix: print <span class="font-mono bg-slate-100 px-1 rounded">view</span> before calling <span class="font-mono bg-slate-100 px-1 rounded">shout</span>, or create <span class="font-mono bg-slate-100 px-1 rounded">view</span> after the call.</div>
+          <div class="text-slate-600 mt-1">2 pts compile reason, 3 pts minimal fix + explanation.</div>
+        </div>
+      </div>
+    </div>
+  </details>
+</section>
+
+<footer class="mt-12 text-center text-sm text-slate-500">
+  End of test - Total: 120 points - Code-based: 90 points (75%)
+</footer>
+
+
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const durationInput = document.getElementById("durationMinutes");
+      const timerDisplay = document.getElementById("timerDisplay");
+      const startBtn = document.getElementById("startBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const timeBanner = document.getElementById("timeBanner");
+      const progressBar = document.getElementById("progressBar");
+
+      let intervalId = null;
+      let totalSeconds = 45 * 60;
+      let remainingSeconds = totalSeconds;
+      let running = false;
+      let startedOnce = false;
+
+      function clampInt(value, min, max) {
+        const n = Number.parseInt(String(value), 10);
+        if (!Number.isFinite(n)) return min;
+        if (n < min) return min;
+        if (n > max) return max;
+        return n;
+      }
+
+      function formatTime(seconds) {
+        const s = Math.max(0, seconds);
+        const hours = Math.floor(s / 3600);
+        const minutes = Math.floor((s % 3600) / 60);
+        const secs = s % 60;
+
+        const mm = String(minutes).padStart(2, "0");
+        const ss = String(secs).padStart(2, "0");
+
+        if (hours > 0) {
+          const hh = String(hours).padStart(2, "0");
+          return `${hh}:${mm}:${ss}`;
+        }
+        return `${minutes}:${ss.padStart(2, "0")}`;
+      }
+
+      function updateDisplay() {
+        timerDisplay.textContent = formatTime(remainingSeconds);
+
+        const denom = Math.max(1, totalSeconds);
+        const done = (totalSeconds - remainingSeconds) / denom;
+        const pct = Math.min(100, Math.max(0, done * 100));
+        progressBar.style.width = pct.toFixed(2) + "%";
+      }
+
+      function syncFromInputIfAllowed() {
+        if (running) return;
+        if (startedOnce) return;
+
+        const minutes = clampInt(durationInput.value, 1, 600);
+        totalSeconds = minutes * 60;
+        remainingSeconds = totalSeconds;
+        updateDisplay();
+      }
+
+      function showTimeBanner(show) {
+        if (show) timeBanner.classList.remove("hidden");
+        else timeBanner.classList.add("hidden");
+      }
+
+      function setInputEnabled(enabled) {
+        durationInput.disabled = !enabled;
+        durationInput.classList.toggle("bg-slate-100", !enabled);
+        durationInput.classList.toggle("cursor-not-allowed", !enabled);
+      }
+
+      function startTimer() {
+        if (running) return;
+
+        if (!startedOnce) {
+          const minutes = clampInt(durationInput.value, 1, 600);
+          totalSeconds = minutes * 60;
+          remainingSeconds = totalSeconds;
+          startedOnce = true;
+          showTimeBanner(false);
+          setInputEnabled(false);
+          updateDisplay();
+        }
+
+        if (remainingSeconds <= 0) {
+          showTimeBanner(true);
+          return;
+        }
+
+        running = true;
+
+        intervalId = window.setInterval(function () {
+          remainingSeconds -= 1;
+          updateDisplay();
+
+          if (remainingSeconds <= 0) {
+            remainingSeconds = 0;
+            updateDisplay();
+            pauseTimer();
+            showTimeBanner(true);
+          }
+        }, 1000);
+      }
+
+      function pauseTimer() {
+        if (intervalId !== null) {
+          window.clearInterval(intervalId);
+          intervalId = null;
+        }
+        running = false;
+      }
+
+      function resetTimer() {
+        pauseTimer();
+        startedOnce = false;
+        showTimeBanner(false);
+        setInputEnabled(true);
+
+        const minutes = clampInt(durationInput.value, 1, 600);
+        totalSeconds = minutes * 60;
+        remainingSeconds = totalSeconds;
+        updateDisplay();
+      }
+
+      durationInput.addEventListener("input", function () {
+        syncFromInputIfAllowed();
+      });
+
+      startBtn.addEventListener("click", function () {
+        startTimer();
+      });
+
+      pauseBtn.addEventListener("click", function () {
+        pauseTimer();
+      });
+
+      resetBtn.addEventListener("click", function () {
+        resetTimer();
+      });
+
+      // Init
+      syncFromInputIfAllowed();
+      updateDisplay();
+      showTimeBanner(false);
+      setInputEnabled(true);
+    })();
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
