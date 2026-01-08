@@ -4,12 +4,12 @@
 
 fn main() {
 
-    //. Use enums if something is one of a set of diffrent options, lets use traffic lights as an example.
+    //. Use enums if something is one of a set of different options, lets use traffic lights as an example.
     //. The current active traffic light is one of (Red, Orange, Green). 
 
     //^ Use enums WHEREVER POSSIBLE. ENUMS PROMOTE GOOD CODE, AND PREVENT BUGS
 
-    //^ Example one: IP Adresses, an IP can be one of (IPVersion4, IPVersion6). So for every single active IP adress it is either version 4 or version 6
+    //^ Example one: IP Addresses, an IP can be one of (IPVersion4, IPVersion6). So for every single active IP address it is either version 4 or version 6
 
     //^ Creating an enum
     enum IpAddrVersion { //. This creates an enum with the name IpAddrVersion 
@@ -22,7 +22,7 @@ fn main() {
     let four = IpAddrVersion::V4; //. The syntax for creating an instance is <enum name>::<enum variant>. In this case the enum is named IpAddrVersion and the variant is called V4. Thus we use IpAddrVersion::V4
     let six = IpAddrVersion::V6;
     
-    //. We now have a way to capture the version of an ip adress but what if we want to capture the IP adress itself
+    //. We now have a way to capture the version of an ip address but what if we want to capture the IP address itself
     //. For this we can use structs like we learned in the last chapter
 
     struct IpAddr {
@@ -42,7 +42,7 @@ fn main() {
     //^ Lets improve it in this example by defining the address field in the enum itself.
     {
         enum IpAddrVersion { 
-            V4(String), //. Now when something is of type IpAddrVersion::V4 it also has a string (for adress) so its more like IpAddrVersion::V4(String)
+            V4(String), //. Now when something is of type IpAddrVersion::V4 it also has a string (for address) so its more like IpAddrVersion::V4(String)
             V6(String), 
         }
 
@@ -312,4 +312,40 @@ fn main() {
 
         //. (x matches Some(value)) is just a way of saying check the value of x. If it is Some(<any value>) then it matches the pattern Some(value)
     }
+}
+
+mod matches {
+    enum Leuge {
+    Bronze(i32),
+    Gold(i32),
+    Diamond(i32),
+}
+
+
+fn main() {
+    let player1 = Leuge::Bronze(12);
+    let player2 = Leuge::Gold(15);
+    let player3 = Leuge::Bronze(18);
+
+    print_current_position(player1);
+    print_current_position(player2);
+    print_current_position(player3);
+
+}
+
+
+fn print_current_position(x: Leuge) {
+    match x {
+        Leuge::Bronze(abc) => { //. This checks if x matches the pattern  Leuge::Bronze and then it will insert 12 into abc. abc can be any other name as well. Then it will use abc and run println!("{}", abc);
+            println!("{}", abc);
+        },
+        Leuge::Gold(abc) => {
+            println!("{}", abc);
+        },
+        Leuge::Diamond(abc) => {
+            println!("{}", abc);
+        },
+    }
+}
+
 }
