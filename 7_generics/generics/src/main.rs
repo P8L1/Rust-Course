@@ -401,8 +401,28 @@ mod generics_performance {
         //. Luckily for us the use of a Generic DOES NOT IMPACT PERFORMANCE. Thats because at compile time Rust will actually turn the option enum into two option enums one for i32 and one for f64. (So Rust will Generate all the necessary versions of the thing that uses Generics at compile time)
         let integer = Option::Some(5);
         let float = Option::Some(5.0);
+        //. So at compile time it will look something like this, refer to at_compile_time
     }
 }
+
+mod at_compile_time {
+    //. This is what rust will do to mod generics_performance when you compile
+    enum Option_i32 {
+        Some(i32),
+        None,
+    }
+
+    enum Option_f64 {
+        Some(f64),
+        None,
+    }
+
+    fn main() {
+        let integer = Option_i32 ::Some(5);
+        let float = Option_f64 ::Some(5.0);
+    }
+}
+
 fn main() {
     
 }
