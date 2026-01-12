@@ -4,7 +4,7 @@
 //^ Right now we will only be looking at Generics. Next week we will look at Traits, and the week after that we will cover Lifetimes.
 
 //^ Please note that this is a step up from "normal" programming. For many high-level languages, the learning curve effectively ends around here.
-//^ This work is harder than normal (since its very abstract) and it is a bit unique to Rust. So blame yourself if you are struggling, and do not be afraid to ask for help.
+//^ This work is harder than normal (since its very abstract) and it is a bit unique to Rust. So blame yourself if you are struggling, and do not be afraid to ask for help. 
 
 //^ Before we get into the ins and outs of Generics/Traits/Lifetimes you first need to understand DRY
 //^ DRY is what girls are when they think of you. (Just a joke)
@@ -264,7 +264,7 @@ mod generics_with_structs_example_2 {
 mod generics_with_structs_example_3 {
     //. Added another generic type G 
     //. So now x is of the generic type T
-    //. And G is of the generic type G, thus both x and y can be different types
+    //. And y is of the generic type G, thus both x and y can be different types or the same type
     struct Point<T, G> {
         x : T,
         y : G,
@@ -292,10 +292,12 @@ mod generics_with_enums_example_1 {
 }
 
 mod generics_with_structs_functions {
+
     struct Point<T> {
         x: T,
         y: T,
     }
+    //. Please note that one struct can have more than 1 implementation block
     //. Here our point struct takes a generic type T and both x and y are of the type T
     //. Now lets define a method on our point struct
     //. We want our implementation block to use generics so we will write impl<T>
@@ -308,13 +310,99 @@ mod generics_with_structs_functions {
     }
     //. Note the Generics you specify in your impl block don't have to be the same as the Generics specified when creating the struct
     //. This works the same as lines 302 to 308
-    impl<U>  Point<U> {
+    impl<U>  Point<U> { //. So basically the type parameter could be anything
         fn x_v2(&self) -> &U { //. Renamed from x to x_v2 sp we don't get a double declaration error
             &self.x
         }
     }
+    //. To make this even clearer lets define another implementation block on point with a concrete type parameter
+    impl Point<f64> { //. So here we are defining an implementation block for Point and it is only for points that have a f64 type parameter 
+        fn y(&self) -> f64 { //. So here we define a method that returns the y value of the point called on
+            self.y
+        }
+    }
+    //. point_object.x(); is available to all Point instances but point_object.y(); is only available for points where both x and y are of type f64
+    //. Lets demonstrate the concept defined in the previous line
+    fn main() {
+        //. Lets create a point called p1 that has both x and y as integers
+        let p1 = Point{
+            x: 5,
+            y: 10
+        };
+        //. Now lets create a point called p2 that has both x and y as floating point numbers
+        let p2 = Point{ 
+            x: 5.5,
+            y: 90.9
+        };
+
+        //^ TO DEMONSTRATE
+        //. point_object.x(); is available to all Point instances but point_object.y(); is only available for points where both x and y are of type f64
+        p1.x(); //. Works since x is available for all Point instances
+        p2.x(); //. Works since x is available for all Point instances
+
+        p1.y(); //. Does not work since p1.x and p1.y are not of the type f64
+        p2.y(); //. Works since both p2.x and p2.y are of type f64
+
+        //. Now lets go to a more complex example, refer to more_complex_example
+    }
 }
 
+mod more_complex_example {
+
+    //. Here we have our point type again except now we have two generics, T and U
+    struct Point<T, U> {
+        x: T,   //. So x is going to be one type (T)
+        y: U,   //. And y is going to be another type (U), Note they can still be of the same type, then both T and U will be that type. So both T and U can still be i32's, they dont need to be different types
+    }
+
+    //. Then we define an implementation block with some generics (T and U), and we will be implementing for our point struct
+    impl<T, U> Point<T, U> {
+        //. Now we define a method called mixup with its own Generics V and W, both V and W are scoped to the mixup function. 
+        fn mixup<V, W>(self, other: Point<V, W>) -> Point<T, W> { //. Mixup takes self as the first argument and the second argument is called other and it is of type Point. This Argument will be using the V and W generics defined next to the mixup function name. Why did I use V and W instead of T and U? We want the other instance of Point to be able to have parameters that are of different type than the Point object the method is called on . Our return type is also a Point and there we mix up the Generics, So first we have T which comes from the Point object we are calling the method on and then W which comes from the point that is passed into the function
+            //. Refer to main to see this method in action
+            Point {
+                x: self.x,
+                y: other.y,
+            }
+        }
+    }
+
+    fn main() {
+        //. First we declare an instance of the Point struct called p1, that has x as a i32 and y as a f64
+        let p1 = Point {
+            x: 5,
+            y: 10.4,
+        };
+        //. Then we declare another Point called p2, its x value is a string slice (&str) and the y value is going to be a char
+        let p2 = Point {
+            x: "Hello",
+            y: 'c',
+        };
+        //. Finally we declare a Point called p3 and its value is going to be set to the output of the mixup method applied on p1
+        let p3 = p1.mixup(p2);
+
+        println!("p3.x = {}, p3.y = {}", p3.x, p3.y); //. Will Print: p3.x = 5, p3.y = c
+    }
+
+    //^ The last thing I want to talk about is performance, Generics are great because they allow us to reduce duplication. Refer to generics_performance
+}
+
+mod generics_performance {
+
+    //. I redefined the option enum for clarity
+    enum Option<T> {
+        Some(T),
+        None,
+    }
+
+    fn main() {
+        //. In this case we have two instances of the Option enum, one is a float and the other an integer. 
+        //. Instead of defining two version of the Option enum (one for i32 and one for f64), we can use a generic for the some variant.
+        //. Luckily for us the use of a Generic DOES NOT IMPACT PERFORMANCE. Thats because at compile time Rust will actually turn the option enum into two option enums one for i32 and one for f64. (So Rust will Generate all the necessary versions of the thing that uses Generics at compile time)
+        let integer = Option::Some(5);
+        let float = Option::Some(5.0);
+    }
+}
 fn main() {
     
 }
